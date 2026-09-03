@@ -1,0 +1,29 @@
+# WordPress core and environment-specific configuration.
+/*
+!/.gitignore
+!/docs/
+!/tools/
+!/tests/
+!/wp-content/
+
+/wp-content/*
+!/wp-content/themes/
+!/wp-content/plugins/
+
+/wp-content/themes/*
+!/wp-content/themes/qr-minimal-store/
+
+/wp-content/plugins/*
+!/wp-content/plugins/qr-store-bootstrap/
+
+/wp-config.php
+/wp-content/uploads/
+/.superpowers/
+
+# Local and generated files.
+*.log
+*.tmp
+__pycache__/
+*.py[cod]
+.DS_Store
+Thumbs.db
