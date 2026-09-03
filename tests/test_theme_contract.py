@@ -187,26 +187,151 @@ class ThemeContractTests(unittest.TestCase):
         for selector in selectors:
             self.assertIn(selector, css)
 
-    def test_css_styles_transactional_woocommerce_pages(self):
+    def test_transactional_layouts_honor_responsive_contracts(self):
         css = self.read("assets/css/site.css")
-        selectors = (
-            ".woocommerce-cart",
-            ".woocommerce-checkout",
-            ".woocommerce-account",
-            ".woocommerce-error",
-            ".woocommerce-message",
-            "#order_review",
-            ".woocommerce-MyAccount-navigation",
+        transactional_css = css.split(
+            "/* WooCommerce cart, checkout, and customer account */",
+            1,
+        )[1]
+        desktop_css, tablet_and_below = transactional_css.split(
+            "@media (max-width: 992px)",
+            1,
         )
-        for selector in selectors:
-            self.assertIn(selector, css)
+        tablet_css, mobile_and_below = tablet_and_below.split(
+            "@media (max-width: 768px)",
+            1,
+        )
+        mobile_css, narrow_css = mobile_and_below.split(
+            "@media (max-width: 640px)",
+            1,
+        )
+
+        checkout_selector = ".woocommerce-checkout form.checkout"
+        checkout_desktop = self.css_declarations(
+            desktop_css,
+            checkout_selector,
+        )
+        checkout_tablet = self.css_declarations(
+            tablet_css,
+            checkout_selector,
+        )
+        self.assertEqual("grid", checkout_desktop.get("display"))
+        self.assertEqual(
+            "minmax(0, 1fr) minmax(320px, 0.8fr)",
+            checkout_desktop.get("grid-template-columns"),
+        )
+        self.assertEqual(
+            "1fr",
+            checkout_tablet.get("grid-template-columns"),
+        )
+
+        account_selector = ".woocommerce-account.logged-in .woocommerce"
+        self.assertEqual(
+            "260px minmax(0, 1fr)",
+            self.css_declarations(
+                desktop_css,
+                account_selector,
+            ).get("grid-template-columns"),
+        )
+        self.assertEqual(
+            "1fr",
+            self.css_declarations(
+                mobile_css,
+                account_selector,
+            ).get("grid-template-columns"),
+        )
+
+        cart = self.css_declarations(
+            desktop_css,
+            ".woocommerce-cart .woocommerce-cart-form",
+        )
+        self.assertEqual("auto", cart.get("overflow-x"))
+
+        disabled_selectors = (
+            ".woocommerce-cart table.cart td.actions .button:disabled",
+            ".woocommerce-cart table.cart td.actions .button:disabled[disabled]",
+            ".woocommerce-cart table.cart td.actions .button.disabled",
+        )
+        for selector in disabled_selectors:
+            declarations = self.css_declarations(desktop_css, selector)
+            self.assertEqual(
+                "var(--qr-border)",
+                declarations.get("background"),
+            )
+            self.assertEqual(
+                "var(--qr-muted)",
+                declarations.get("color"),
+            )
+            self.assertEqual("not-allowed", declarations.get("cursor"))
+            self.assertEqual("1", declarations.get("opacity"))
+
+        self.assertEqual(
+            "repeat(4, minmax(0, 1fr))",
+            self.css_declarations(
+                css,
+                ".site-footer__grid--four",
+            ).get("grid-template-columns"),
+        )
+        footer_selector = ".site-footer .site-footer__grid--four"
+        self.assertEqual(
+            "repeat(2, minmax(0, 1fr))",
+            self.css_declarations(
+                tablet_css,
+                footer_selector,
+            ).get("grid-template-columns"),
+        )
+        self.assertEqual(
+            "1fr",
+            self.css_declarations(
+                narrow_css,
+                footer_selector,
+            ).get("grid-template-columns"),
+        )
+
+    def test_transactional_controls_and_feedback_are_not_hidden(self):
+        css = re.sub(
+            r"/\*.*?\*/",
+            "",
+            self.read("assets/css/site.css"),
+            flags=re.DOTALL,
+        )
+        protected_targets = (
+            ".woocommerce-error",
+            ".woocommerce-info",
+            ".woocommerce-message",
+            ".woocommerce-notice",
+            ".woocommerce-notices-wrapper",
+            ".payment_box",
+            ".place-order",
+            "#place_order",
+            ".woocommerce-invalid",
+        )
+        for selectors, body in re.findall(r"([^{}]+)\{([^{}]*)\}", css):
+            declarations = {
+                name.strip(): value.strip().lower()
+                for name, value in re.findall(
+                    r"([\w-]+)\s*:\s*([^;]+);",
+                    body,
+                )
+            }
+            if declarations.get("display") != "none":
+                continue
+            normalized_selectors = selectors.lower()
+            for target in protected_targets:
+                self.assertNotIn(
+                    target.lower(),
+                    normalized_selectors,
+                    f"{target} must not be hidden by {selectors.strip()}",
+                )
 
     def test_footer_uses_dynamic_categories_and_registered_menu(self):
         php = self.read("footer.php")
         self.assertIn("'theme_location' => 'footer'", php)
+        self.assertIn("'fallback_cb'    => 'wp_page_menu'", php)
         self.assertIn("qr_minimal_store_render_category_links( 3 );", php)
         self.assertIn('class="footer-brand"', php)
-        self.assertNotIn("/product-category/ups/", php)
+        self.assertEqual(3, php.count('class="footer-column"'))
+        self.assertNotIn("/product-category/", php)
 
     def test_product_grid_honors_column_classes_and_responsive_limits(self):
         css = self.read("assets/css/site.css")
