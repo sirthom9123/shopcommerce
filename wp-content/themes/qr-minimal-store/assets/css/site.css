@@ -984,6 +984,30 @@ button:focus,
   overflow: hidden;
 }
 
+.woocommerce ul.products.columns-1 {
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+.woocommerce ul.products.columns-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.woocommerce ul.products.columns-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.woocommerce ul.products.columns-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.woocommerce ul.products.columns-5 {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.woocommerce ul.products.columns-6 {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
 .woocommerce ul.products::before,
 .woocommerce ul.products::after {
   display: none;
@@ -1350,10 +1374,37 @@ button:focus,
   .woocommerce ul.products {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+
+  .woocommerce ul.products.columns-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+
+  .woocommerce ul.products.columns-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .woocommerce ul.products.columns-3,
+  .woocommerce ul.products.columns-4,
+  .woocommerce ul.products.columns-5,
+  .woocommerce ul.products.columns-6 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 768px) {
   .woocommerce ul.products {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .woocommerce ul.products.columns-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+
+  .woocommerce ul.products.columns-2,
+  .woocommerce ul.products.columns-3,
+  .woocommerce ul.products.columns-4,
+  .woocommerce ul.products.columns-5,
+  .woocommerce ul.products.columns-6 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -1389,7 +1440,13 @@ button:focus,
 }
 
 @media (max-width: 420px) {
-  .woocommerce ul.products {
+  .woocommerce ul.products,
+  .woocommerce ul.products.columns-1,
+  .woocommerce ul.products.columns-2,
+  .woocommerce ul.products.columns-3,
+  .woocommerce ul.products.columns-4,
+  .woocommerce ul.products.columns-5,
+  .woocommerce ul.products.columns-6 {
     grid-template-columns: 1fr;
   }
 

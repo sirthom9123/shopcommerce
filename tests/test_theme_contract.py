@@ -20,6 +20,17 @@ class ThemeContractTests(unittest.TestCase):
         self.assertIsNotNone(rule, f"Missing CSS rule for {selector}")
         return rule.group("body")
 
+    def css_declarations(self, css, selector):
+        declarations = {}
+        css = re.sub(r"/\*.*?\*/", "", css, flags=re.DOTALL)
+        for selectors, body in re.findall(r"([^{}]+)\{([^{}]*)\}", css):
+            selector_list = [item.strip() for item in selectors.split(",")]
+            if selector not in selector_list:
+                continue
+            for name, value in re.findall(r"([\w-]+)\s*:\s*([^;]+);", body):
+                declarations[name.strip()] = value.strip()
+        return declarations
+
     def test_css_uses_approved_grass_green_tokens(self):
         css = self.read("assets/css/site.css").lower()
         self.assertRegex(css, r"--qr-primary:\s*#457d53")
@@ -157,6 +168,9 @@ class ThemeContractTests(unittest.TestCase):
         )
         for hook in hooks:
             self.assertIn(hook, php)
+        hook_calls = [f"do_action( '{hook}' )" for hook in hooks]
+        hook_positions = [php.index(call) for call in hook_calls]
+        self.assertEqual(hook_positions, sorted(hook_positions))
         self.assertIn("store-product-card", php)
         self.assertIn("store-product-card__media", php)
         self.assertIn("store-product-card__body", php)
@@ -172,6 +186,127 @@ class ThemeContractTests(unittest.TestCase):
         )
         for selector in selectors:
             self.assertIn(selector, css)
+
+    def test_product_grid_honors_column_classes_and_responsive_limits(self):
+        css = self.read("assets/css/site.css")
+        catalog_css = css.split("/* WooCommerce catalog and product cards */", 1)[1]
+        desktop_css, tablet_and_below = catalog_css.split(
+            "@media (max-width: 992px)",
+            1,
+        )
+        tablet_css, mobile_and_below = tablet_and_below.split(
+            "@media (max-width: 768px)",
+            1,
+        )
+        mobile_css, narrow_css = mobile_and_below.split(
+            "@media (max-width: 420px)",
+            1,
+        )
+
+        desktop_columns = (1, 2, 3, 4, 5, 6)
+        tablet_columns = (1, 2, 3, 3, 3, 3)
+        mobile_columns = (1, 2, 2, 2, 2, 2)
+        for requested, desktop, tablet, mobile in zip(
+            range(1, 7),
+            desktop_columns,
+            tablet_columns,
+            mobile_columns,
+        ):
+            selector = f".woocommerce ul.products.columns-{requested}"
+            self.assertEqual(
+                f"repeat({desktop}, minmax(0, 1fr))",
+                self.css_declarations(desktop_css, selector).get(
+                    "grid-template-columns",
+                ),
+            )
+            self.assertEqual(
+                f"repeat({tablet}, minmax(0, 1fr))",
+                self.css_declarations(tablet_css, selector).get(
+                    "grid-template-columns",
+                ),
+            )
+            self.assertEqual(
+                f"repeat({mobile}, minmax(0, 1fr))",
+                self.css_declarations(mobile_css, selector).get(
+                    "grid-template-columns",
+                ),
+            )
+            self.assertEqual(
+                "1fr",
+                self.css_declarations(narrow_css, selector).get(
+                    "grid-template-columns",
+                ),
+            )
+
+        self.assertEqual(
+            "repeat(4, minmax(0, 1fr))",
+            self.css_declarations(
+                desktop_css,
+                ".woocommerce ul.products",
+            ).get("grid-template-columns"),
+        )
+        self.assertEqual(
+            "repeat(3, minmax(0, 1fr))",
+            self.css_declarations(
+                tablet_css,
+                ".woocommerce ul.products",
+            ).get("grid-template-columns"),
+        )
+        self.assertEqual(
+            "repeat(2, minmax(0, 1fr))",
+            self.css_declarations(
+                mobile_css,
+                ".woocommerce ul.products",
+            ).get("grid-template-columns"),
+        )
+        self.assertEqual(
+            "1fr",
+            self.css_declarations(
+                narrow_css,
+                ".woocommerce ul.products",
+            ).get("grid-template-columns"),
+        )
+
+    def test_product_card_css_has_stable_media_and_title_clamp(self):
+        css = self.read("assets/css/site.css")
+        media = self.css_declarations(css, ".store-product-card__media")
+        title = self.css_declarations(
+            css,
+            ".woocommerce ul.products li.product .woocommerce-loop-product__title",
+        )
+        self.assertEqual("1 / 1", media.get("aspect-ratio"))
+        self.assertEqual("hidden", media.get("overflow"))
+        self.assertEqual("-webkit-box", title.get("display"))
+        self.assertEqual("vertical", title.get("-webkit-box-orient"))
+        self.assertEqual("2", title.get("-webkit-line-clamp"))
+        self.assertEqual("hidden", title.get("overflow"))
+
+    def test_product_detail_css_uses_standard_woocommerce_surfaces(self):
+        css = self.read("assets/css/site.css")
+        product = self.css_declarations(css, ".woocommerce div.product")
+        title = self.css_declarations(
+            css,
+            ".woocommerce div.product .product_title",
+        )
+        cart = self.css_declarations(
+            css,
+            ".woocommerce div.product form.cart",
+        )
+        gallery = self.css_declarations(
+            css,
+            ".woocommerce div.product div.images .woocommerce-product-gallery__wrapper",
+        )
+        tabs = self.css_declarations(
+            css,
+            ".woocommerce div.product .woocommerce-tabs ul.tabs",
+        )
+        self.assertEqual("flow-root", product.get("display"))
+        self.assertEqual("var(--qr-surface)", product.get("background"))
+        self.assertEqual("var(--qr-text)", title.get("color"))
+        self.assertEqual("flex", cart.get("display"))
+        self.assertEqual("wrap", cart.get("flex-wrap"))
+        self.assertEqual("hidden", gallery.get("overflow"))
+        self.assertEqual("flex", tabs.get("display"))
 
 
 if __name__ == "__main__":
