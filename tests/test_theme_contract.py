@@ -27,6 +27,22 @@ class ThemeContractTests(unittest.TestCase):
         self.assertEqual("#457d53", palette["primary"])
         self.assertEqual("#5f966d", palette["primary-hover"])
 
+    def test_header_contains_dynamic_store_actions(self):
+        php = self.read("header.php")
+        self.assertIn('class="header-main"', php)
+        self.assertIn('class="header-main__navigation"', php)
+        self.assertIn("qr_minimal_store_product_search_bar();", php)
+        self.assertIn("wc_get_cart_url()", php)
+        self.assertIn("WC()->cart->get_cart_contents_count()", php)
+        self.assertIn("wp_nav_menu(", php)
+        self.assertIn("qr_minimal_store_render_category_links( 8 );", php)
+
+    def test_header_has_accessible_navigation_labels(self):
+        php = self.read("header.php")
+        self.assertIn("Utility navigation", php)
+        self.assertIn("Primary navigation", php)
+        self.assertIn("Product categories", php)
+
 
 if __name__ == "__main__":
     unittest.main()
