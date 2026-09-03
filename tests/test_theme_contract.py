@@ -187,6 +187,27 @@ class ThemeContractTests(unittest.TestCase):
         for selector in selectors:
             self.assertIn(selector, css)
 
+    def test_css_styles_transactional_woocommerce_pages(self):
+        css = self.read("assets/css/site.css")
+        selectors = (
+            ".woocommerce-cart",
+            ".woocommerce-checkout",
+            ".woocommerce-account",
+            ".woocommerce-error",
+            ".woocommerce-message",
+            "#order_review",
+            ".woocommerce-MyAccount-navigation",
+        )
+        for selector in selectors:
+            self.assertIn(selector, css)
+
+    def test_footer_uses_dynamic_categories_and_registered_menu(self):
+        php = self.read("footer.php")
+        self.assertIn("'theme_location' => 'footer'", php)
+        self.assertIn("qr_minimal_store_render_category_links( 3 );", php)
+        self.assertIn('class="footer-brand"', php)
+        self.assertNotIn("/product-category/ups/", php)
+
     def test_product_grid_honors_column_classes_and_responsive_limits(self):
         css = self.read("assets/css/site.css")
         catalog_css = css.split("/* WooCommerce catalog and product cards */", 1)[1]

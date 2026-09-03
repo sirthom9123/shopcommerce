@@ -15,11 +15,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</div>
 	</div>
 	<div class="container site-footer__grid site-footer__grid--four">
-		<div>
+		<div class="footer-brand">
 			<h2><?php bloginfo( 'name' ); ?></h2>
 			<p><?php bloginfo( 'description' ); ?></p>
 		</div>
-		<div>
+		<div class="footer-column">
 			<h3><?php esc_html_e( 'Quick Links', 'qr-minimal-store' ); ?></h3>
 			<?php
 			wp_nav_menu(
@@ -32,13 +32,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 			);
 			?>
 		</div>
-		<div>
+		<div class="footer-column">
 			<h3><?php esc_html_e( 'Shop Categories', 'qr-minimal-store' ); ?></h3>
-			<p><a href="<?php echo esc_url( home_url( '/product-category/ups/' ) ); ?>"><?php esc_html_e( 'UPS', 'qr-minimal-store' ); ?></a></p>
-			<p><a href="<?php echo esc_url( home_url( '/product-category/cctv/' ) ); ?>"><?php esc_html_e( 'CCTV', 'qr-minimal-store' ); ?></a></p>
-			<p><a href="<?php echo esc_url( home_url( '/product-category/peripherals/' ) ); ?>"><?php esc_html_e( 'Peripherals', 'qr-minimal-store' ); ?></a></p>
+			<?php qr_minimal_store_render_category_links( 3 ); ?>
 		</div>
-		<div>
+		<div class="footer-column">
 			<h3><?php esc_html_e( 'Support', 'qr-minimal-store' ); ?></h3>
 			<p><?php esc_html_e( 'Secure checkout and reliable delivery.', 'qr-minimal-store' ); ?></p>
 			<p><a href="<?php echo esc_url( home_url( '/my-account/' ) ); ?>"><?php esc_html_e( 'My Account', 'qr-minimal-store' ); ?></a> / <a href="<?php echo esc_url( home_url( '/checkout/' ) ); ?>"><?php esc_html_e( 'Checkout', 'qr-minimal-store' ); ?></a></p>
