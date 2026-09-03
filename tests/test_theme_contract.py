@@ -146,6 +146,33 @@ class ThemeContractTests(unittest.TestCase):
             r"scroll-snap-align:\s*start",
         )
 
+    def test_product_card_preserves_required_woocommerce_hooks(self):
+        php = self.read("woocommerce/content-product.php")
+        hooks = (
+            "woocommerce_before_shop_loop_item",
+            "woocommerce_before_shop_loop_item_title",
+            "woocommerce_shop_loop_item_title",
+            "woocommerce_after_shop_loop_item_title",
+            "woocommerce_after_shop_loop_item",
+        )
+        for hook in hooks:
+            self.assertIn(hook, php)
+        self.assertIn("store-product-card", php)
+        self.assertIn("store-product-card__media", php)
+        self.assertIn("store-product-card__body", php)
+
+    def test_css_styles_core_woocommerce_surfaces(self):
+        css = self.read("assets/css/site.css")
+        selectors = (
+            ".woocommerce ul.products",
+            ".woocommerce div.product",
+            ".woocommerce .woocommerce-ordering",
+            ".woocommerce nav.woocommerce-pagination",
+            ".woocommerce span.onsale",
+        )
+        for selector in selectors:
+            self.assertIn(selector, css)
+
 
 if __name__ == "__main__":
     unittest.main()
