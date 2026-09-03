@@ -454,6 +454,34 @@ class ThemeContractTests(unittest.TestCase):
         self.assertEqual("hidden", gallery.get("overflow"))
         self.assertEqual("flex", tabs.get("display"))
 
+    def test_styles_include_mobile_and_reduced_motion_contracts(self):
+        css = self.read("assets/css/site.css")
+        self.assertIn("@media (max-width: 992px)", css)
+        self.assertIn("@media (max-width: 640px)", css)
+        self.assertIn("@media (prefers-reduced-motion: reduce)", css)
+        self.assertIn(":focus-visible", css)
+
+    def test_product_tabs_keep_accessibility_contract(self):
+        php = self.read("front-page.php")
+        self.assertIn('role="tablist"', php)
+        self.assertIn('role="tab"', php)
+        self.assertIn('role="tabpanel"', php)
+        self.assertIn('aria-selected="true"', php)
+        self.assertIn('aria-controls="panel-new"', php)
+
+    def test_theme_does_not_reference_third_party_brand_assets(self):
+        combined = "\n".join(
+            self.read(path)
+            for path in (
+                "header.php",
+                "front-page.php",
+                "footer.php",
+                "assets/css/site.css",
+            )
+        ).lower()
+        self.assertNotIn("electro.", combined)
+        self.assertNotIn("#fed700", combined)
+
 
 if __name__ == "__main__":
     unittest.main()
