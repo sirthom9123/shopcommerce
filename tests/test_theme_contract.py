@@ -12,6 +12,14 @@ class ThemeContractTests(unittest.TestCase):
     def read(self, relative_path):
         return (THEME / relative_path).read_text(encoding="utf-8")
 
+    def css_rule(self, css, selector):
+        rule = re.search(
+            rf"{re.escape(selector)}\s*\{{(?P<body>[^}}]*)\}}",
+            css,
+        )
+        self.assertIsNotNone(rule, f"Missing CSS rule for {selector}")
+        return rule.group("body")
+
     def test_css_uses_approved_grass_green_tokens(self):
         css = self.read("assets/css/site.css").lower()
         self.assertRegex(css, r"--qr-primary:\s*#457d53")
@@ -62,9 +70,14 @@ class ThemeContractTests(unittest.TestCase):
         php = self.read("functions.php")
         self.assertIn("function qr_minimal_store_render_category_cards( $limit = 5 )", php)
         self.assertIn("get_term_link( $term )", php)
+        self.assertIn("is_wp_error( $term_link )", php)
+        self.assertIn("esc_url( $term_link )", php)
         self.assertIn("get_term_meta( $term->term_id, 'thumbnail_id', true )", php)
         self.assertIn("wp_get_attachment_image(", php)
         self.assertIn("esc_html( $term->name )", php)
+        self.assertIn('class="category-card__placeholder" aria-hidden="true"', php)
+        self.assertIn("_n( '%s product', '%s products', $term->count", php)
+        self.assertIn("number_format_i18n( $term->count )", php)
 
     def test_homepage_has_electronics_merchandising_hierarchy(self):
         php = self.read("front-page.php")
@@ -78,6 +91,60 @@ class ThemeContractTests(unittest.TestCase):
         ):
             self.assertIn(class_name, php)
         self.assertIn("qr_minimal_store_render_category_cards( 5 );", php)
+        self.assertNotIn("[product_categories", php)
+        self.assertIn('aria-labelledby="category-rail-title"', php)
+        self.assertIn('id="category-rail-title" class="screen-reader-text"', php)
+        self.assertIn('class="hero-campaign__visual" aria-hidden="true"', php)
+        self.assertIn('role="tablist"', php)
+        for tab_name in ("new", "top", "best"):
+            self.assertRegex(
+                php,
+                rf'<button[^>]*role="tab"[^>]*data-tab="{tab_name}"',
+            )
+            self.assertRegex(
+                php,
+                rf'<div[^>]*role="tabpanel"[^>]*data-panel="{tab_name}"',
+            )
+
+    def test_category_card_hover_uses_primary_hover_token(self):
+        css = self.read("assets/css/site.css").lower()
+        declarations = self.css_rule(css, ".category-card a:hover")
+        self.assertRegex(declarations, r"color:\s*var\(--qr-primary-hover\)")
+
+    def test_category_rail_has_responsive_card_layouts(self):
+        css = self.read("assets/css/site.css").lower()
+        desktop_css, responsive_css = css.split("@media (max-width: 992px)", 1)
+        tablet_css, mobile_css = responsive_css.split("@media (max-width: 640px)", 1)
+
+        desktop_list = self.css_rule(desktop_css, ".category-rail__list")
+        self.assertRegex(
+            desktop_list,
+            r"grid-template-columns:\s*repeat\(5,\s*minmax\(0,\s*1fr\)\)",
+        )
+        self.assertRegex(
+            self.css_rule(desktop_css, ".category-card__media"),
+            r"aspect-ratio:\s*4\s*/\s*3",
+        )
+        self.assertRegex(
+            self.css_rule(desktop_css, ".category-card__media img"),
+            r"object-fit:\s*contain",
+        )
+
+        tablet_list = self.css_rule(tablet_css, ".category-rail__list")
+        self.assertRegex(
+            tablet_list,
+            r"grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\)",
+        )
+
+        mobile_list = self.css_rule(mobile_css, ".category-rail__list")
+        self.assertRegex(mobile_list, r"display:\s*flex")
+        self.assertRegex(mobile_list, r"width:\s*100%")
+        self.assertRegex(mobile_list, r"overflow-x:\s*auto")
+        self.assertRegex(mobile_list, r"scroll-snap-type:\s*x\s+mandatory")
+        self.assertRegex(
+            self.css_rule(mobile_css, ".category-card"),
+            r"scroll-snap-align:\s*start",
+        )
 
 
 if __name__ == "__main__":

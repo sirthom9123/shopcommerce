@@ -488,7 +488,7 @@ button:focus,
 }
 
 .category-card a:hover {
-  color: var(--qr-primary);
+  color: var(--qr-primary-hover);
   border-color: var(--qr-border);
 }
 
