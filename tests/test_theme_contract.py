@@ -43,6 +43,21 @@ class ThemeContractTests(unittest.TestCase):
         self.assertIn("Primary navigation", php)
         self.assertIn("Product categories", php)
 
+    def test_mobile_category_list_is_a_constrained_scroller(self):
+        css = self.read("assets/css/site.css").lower()
+        mobile_css = css.split("@media (max-width: 640px)", 1)[1]
+        category_rule = re.search(
+            r"\.category-strip__list\s*\{(?P<body>[^}]*)\}",
+            mobile_css,
+        )
+
+        self.assertIsNotNone(category_rule)
+        declarations = category_rule.group("body")
+        self.assertRegex(declarations, r"width:\s*100%")
+        self.assertRegex(declarations, r"overflow-x:\s*auto")
+        self.assertRegex(declarations, r"flex-wrap:\s*nowrap")
+        self.assertNotRegex(declarations, r"width:\s*max-content")
+
 
 if __name__ == "__main__":
     unittest.main()

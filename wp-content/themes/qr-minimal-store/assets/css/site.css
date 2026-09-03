@@ -281,12 +281,34 @@ button:focus,
 }
 
 .product-search-bar button {
+  position: relative;
   width: 42px;
   min-width: 42px;
   min-height: 42px;
   margin: 2px;
   padding: 0;
   border-radius: 50%;
+  color: transparent;
+  font-size: 0;
+}
+
+.product-search-bar button::before {
+  content: "";
+  width: 12px;
+  height: 12px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+}
+
+.product-search-bar button::after {
+  content: "";
+  position: absolute;
+  width: 7px;
+  height: 2px;
+  margin: 10px 0 0 10px;
+  border-radius: var(--qr-radius-pill);
+  background: #fff;
+  transform: rotate(45deg);
 }
 
 .header-action {
@@ -689,17 +711,27 @@ button:focus,
     gap: 0.75rem;
   }
 
-  .header-main__navigation,
-  .category-strip__list {
+  .header-main__navigation {
     width: 100%;
     overflow-x: auto;
     overscroll-behavior-inline: contain;
   }
 
-  .site-nav__menu,
-  .category-strip__list {
+  .site-nav__menu {
     flex-wrap: nowrap;
     width: max-content;
+  }
+
+  .category-strip__list {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    flex-wrap: nowrap;
+  }
+
+  .category-strip__list > li {
+    flex: 0 0 auto;
   }
 
   .header-action {
@@ -710,6 +742,12 @@ button:focus,
 
   .product-search-bar select {
     min-width: 110px;
+  }
+
+  .product-search-bar button {
+    width: 44px;
+    min-width: 44px;
+    min-height: 44px;
   }
 }
 
