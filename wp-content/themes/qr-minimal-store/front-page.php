@@ -1,29 +1,29 @@
 ﻿<?php
 get_header();
 ?>
-<section class="hero">
-	<div class="container hero-grid">
-		<div class="hero__inner">
+<section class="hero-campaign">
+	<div class="container hero-campaign__grid">
+		<div class="hero-campaign__content">
 			<p class="eyebrow"><?php esc_html_e( 'Power, security, and smart essentials', 'qr-minimal-store' ); ?></p>
-			<h1><?php esc_html_e( 'Minimal tech store built for everyday performance.', 'qr-minimal-store' ); ?></h1>
-			<p><?php esc_html_e( 'Inspired by Electro Home v12: clear merchandising, high-intent categories, and fast paths to checkout.', 'qr-minimal-store' ); ?></p>
-			<div class="hero__actions">
+			<h1><?php esc_html_e( 'Technology that keeps your world moving.', 'qr-minimal-store' ); ?></h1>
+			<p class="hero-campaign__copy"><?php esc_html_e( 'Discover dependable power backup, smart security, computers, and accessories selected for home and business.', 'qr-minimal-store' ); ?></p>
+			<p class="hero-campaign__offer"><?php esc_html_e( 'Built for productive days and protected spaces.', 'qr-minimal-store' ); ?></p>
+			<div class="hero-campaign__actions">
 				<a class="button" href="<?php echo esc_url( function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/shop/' ) ); ?>"><?php esc_html_e( 'Shop now', 'qr-minimal-store' ); ?></a>
 				<a class="button button--ghost" href="#featured-products"><?php esc_html_e( 'Featured picks', 'qr-minimal-store' ); ?></a>
 			</div>
 		</div>
-		<div class="promo-stack">
-			<article class="promo-card">
-				<p class="eyebrow"><?php esc_html_e( 'UPS + Power Backup', 'qr-minimal-store' ); ?></p>
-				<h3><?php esc_html_e( 'Keep business online during outages.', 'qr-minimal-store' ); ?></h3>
-				<a href="<?php echo esc_url( home_url( '/product-category/ups/' ) ); ?>"><?php esc_html_e( 'Shop UPS', 'qr-minimal-store' ); ?></a>
-			</article>
-			<article class="promo-card">
-				<p class="eyebrow"><?php esc_html_e( 'CCTV Deals', 'qr-minimal-store' ); ?></p>
-				<h3><?php esc_html_e( 'Smart surveillance bundles for home and retail.', 'qr-minimal-store' ); ?></h3>
-				<a href="<?php echo esc_url( home_url( '/product-category/cctv/' ) ); ?>"><?php esc_html_e( 'View Cameras', 'qr-minimal-store' ); ?></a>
-			</article>
+		<div class="hero-campaign__visual" aria-hidden="true">
+			<span class="hero-campaign__orb hero-campaign__orb--large"></span>
+			<span class="hero-campaign__orb hero-campaign__orb--small"></span>
 		</div>
+	</div>
+</section>
+
+<section class="category-rail" aria-labelledby="category-rail-title">
+	<div class="container">
+		<h2 id="category-rail-title" class="screen-reader-text"><?php esc_html_e( 'Popular categories', 'qr-minimal-store' ); ?></h2>
+		<?php qr_minimal_store_render_category_cards( 5 ); ?>
 	</div>
 </section>
 
@@ -43,15 +43,6 @@ get_header();
 			<a href="<?php echo esc_url( function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/shop/' ) ); ?>"><?php esc_html_e( 'See all products', 'qr-minimal-store' ); ?></a>
 		</div>
 		<?php echo do_shortcode( '[products limit="4" columns="4" best_selling="true"]' ); ?>
-	</div>
-</section>
-
-<section class="section">
-	<div class="container">
-		<div class="section-head">
-			<h2><?php esc_html_e( 'Browse Categories', 'qr-minimal-store' ); ?></h2>
-		</div>
-		<?php echo do_shortcode( '[product_categories number="8" columns="4" parent="0"]' ); ?>
 	</div>
 </section>
 

@@ -58,6 +58,27 @@ class ThemeContractTests(unittest.TestCase):
         self.assertRegex(declarations, r"flex-wrap:\s*nowrap")
         self.assertNotRegex(declarations, r"width:\s*max-content")
 
+    def test_category_card_helper_uses_safe_dynamic_term_data(self):
+        php = self.read("functions.php")
+        self.assertIn("function qr_minimal_store_render_category_cards( $limit = 5 )", php)
+        self.assertIn("get_term_link( $term )", php)
+        self.assertIn("get_term_meta( $term->term_id, 'thumbnail_id', true )", php)
+        self.assertIn("wp_get_attachment_image(", php)
+        self.assertIn("esc_html( $term->name )", php)
+
+    def test_homepage_has_electronics_merchandising_hierarchy(self):
+        php = self.read("front-page.php")
+        for class_name in (
+            "hero-campaign",
+            "hero-campaign__content",
+            "category-rail",
+            "benefit-grid",
+            "product-tabs-section",
+            "brand-strip",
+        ):
+            self.assertIn(class_name, php)
+        self.assertIn("qr_minimal_store_render_category_cards( 5 );", php)
+
 
 if __name__ == "__main__":
     unittest.main()

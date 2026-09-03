@@ -106,6 +106,48 @@ function qr_minimal_store_render_category_links( $limit = 8 ) {
 	<?php
 }
 
+function qr_minimal_store_render_category_cards( $limit = 5 ) {
+	$terms = qr_minimal_store_get_top_product_categories( $limit );
+	if ( empty( $terms ) ) {
+		return;
+	}
+	?>
+	<ul class="category-rail__list">
+		<?php foreach ( $terms as $term ) : ?>
+			<?php
+			$thumbnail_id = (int) get_term_meta( $term->term_id, 'thumbnail_id', true );
+			$term_link    = get_term_link( $term );
+			if ( is_wp_error( $term_link ) ) {
+				continue;
+			}
+			?>
+			<li class="category-card">
+				<a href="<?php echo esc_url( $term_link ); ?>">
+					<span class="category-card__media">
+						<?php
+						if ( $thumbnail_id ) {
+							echo wp_get_attachment_image( $thumbnail_id, 'woocommerce_thumbnail', false, array( 'loading' => 'lazy' ) );
+						} else {
+							echo '<span class="category-card__placeholder" aria-hidden="true"></span>';
+						}
+						?>
+					</span>
+					<strong><?php echo esc_html( $term->name ); ?></strong>
+					<span>
+						<?php
+						printf(
+							esc_html( _n( '%s product', '%s products', $term->count, 'qr-minimal-store' ) ),
+							esc_html( number_format_i18n( $term->count ) )
+						);
+						?>
+					</span>
+				</a>
+			</li>
+		<?php endforeach; ?>
+	</ul>
+	<?php
+}
+
 function qr_minimal_store_product_search_bar() {
 	$selected_category = '';
 	if ( isset( $_GET['product_cat'] ) ) {
