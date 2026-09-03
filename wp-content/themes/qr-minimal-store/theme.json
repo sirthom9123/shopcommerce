@@ -6,12 +6,13 @@
     "color": {
       "defaultPalette": false,
       "palette": [
-        { "slug": "background", "name": "Background", "color": "#f7f7f7" },
+        { "slug": "background", "name": "Background", "color": "#f4f2ec" },
         { "slug": "surface", "name": "Surface", "color": "#ffffff" },
-        { "slug": "foreground", "name": "Foreground", "color": "#1f2328" },
-        { "slug": "muted", "name": "Muted", "color": "#59636e" },
-        { "slug": "primary", "name": "Primary", "color": "#101828" },
-        { "slug": "accent", "name": "Accent", "color": "#2f6feb" }
+        { "slug": "foreground", "name": "Foreground", "color": "#25312a" },
+        { "slug": "muted", "name": "Muted", "color": "#69736c" },
+        { "slug": "primary", "name": "Grass Green", "color": "#457d53" },
+        { "slug": "primary-hover", "name": "Light Grass Green", "color": "#5f966d" },
+        { "slug": "primary-soft", "name": "Soft Grass Green", "color": "#e8f0ea" }
       ]
     },
     "layout": {
@@ -56,7 +57,7 @@
     "elements": {
       "button": {
         "border": {
-          "radius": "8px"
+          "radius": "999px"
         },
         "color": {
           "background": "var(--wp--preset--color--primary)",
