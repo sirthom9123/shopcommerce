@@ -461,6 +461,29 @@ class ThemeContractTests(unittest.TestCase):
         self.assertIn("@media (prefers-reduced-motion: reduce)", css)
         self.assertIn(":focus-visible", css)
 
+    def test_mobile_header_intrinsics_do_not_force_page_overflow(self):
+        css = self.read("assets/css/site.css")
+        mobile_css = css.split("@media (max-width: 640px)", 1)[1]
+        header = self.css_declarations(mobile_css, ".header-main")
+        brand = self.css_declarations(mobile_css, ".brand")
+        self.assertEqual("minmax(0, 1fr) auto", header.get("grid-template-columns"))
+        self.assertEqual("0", brand.get("min-width"))
+        self.assertEqual("hidden", brand.get("overflow"))
+        self.assertEqual("ellipsis", brand.get("text-overflow"))
+
+    def test_header_search_controls_keep_visible_keyboard_focus(self):
+        css = self.read("assets/css/site.css")
+        selectors = (
+            '.product-search-bar input[type="search"]:focus-visible',
+            ".product-search-bar select:focus-visible",
+        )
+        for selector in selectors:
+            declarations = self.css_declarations(css, selector)
+            self.assertEqual(
+                "inset 0 0 0 3px var(--qr-primary-soft)",
+                declarations.get("box-shadow"),
+            )
+
     def test_product_tabs_keep_accessibility_contract(self):
         php = self.read("front-page.php")
         self.assertIn('role="tablist"', php)
