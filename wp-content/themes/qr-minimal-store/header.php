@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 <header class="site-header">
 	<div class="site-header__utility">
 		<div class="container utility-row">
-			<p><?php esc_html_e( 'Welcome to our electronics store', 'qr-minimal-store' ); ?></p>
+			<p><?php esc_html_e( 'Welcome to Yehuda Store', 'qr-minimal-store' ); ?></p>
 			<nav class="utility-nav" aria-label="<?php esc_attr_e( 'Utility navigation', 'qr-minimal-store' ); ?>">
 				<a href="<?php echo esc_url( home_url( '/shop/' ) ); ?>"><?php esc_html_e( 'Shop', 'qr-minimal-store' ); ?></a>
 				<a href="<?php echo esc_url( home_url( '/my-account/' ) ); ?>"><?php esc_html_e( 'My Account', 'qr-minimal-store' ); ?></a>
@@ -25,13 +25,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<a class="brand" href="<?php echo esc_url( home_url( '/' ) ); ?>">
 			<span class="brand__name"><?php bloginfo( 'name' ); ?></span><span class="brand__dot" aria-hidden="true">.</span>
 		</a>
-		<nav class="header-main__navigation" aria-label="<?php esc_attr_e( 'Primary navigation', 'qr-minimal-store' ); ?>">
+		<button class="nav-toggle" aria-expanded="false" aria-controls="primary-nav" aria-label="<?php esc_attr_e( 'Toggle menu', 'qr-minimal-store' ); ?>">
+			<span class="nav-toggle__bar"></span>
+			<span class="nav-toggle__bar"></span>
+			<span class="nav-toggle__bar"></span>
+		</button>
+		<nav id="primary-nav" class="header-main__navigation" aria-label="<?php esc_attr_e( 'Primary navigation', 'qr-minimal-store' ); ?>">
 			<?php
 			wp_nav_menu(
 				array(
 					'theme_location' => 'primary',
 					'container'      => false,
-					'fallback_cb'    => 'wp_page_menu',
+					'fallback_cb'    => 'qr_minimal_store_primary_menu_fallback',
 					'menu_class'     => 'site-nav__menu',
 				)
 			);

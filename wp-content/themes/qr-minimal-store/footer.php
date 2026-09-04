@@ -4,14 +4,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 </main>
+<section class="newsletter-bar">
+	<div class="container newsletter-bar__grid">
+		<div class="newsletter-bar__content">
+			<h3><?php esc_html_e( 'Sign up for our newsletter', 'qr-minimal-store' ); ?></h3>
+			<p><?php esc_html_e( 'Get deals, new arrivals, and tech tips delivered to your inbox.', 'qr-minimal-store' ); ?></p>
+		</div>
+		<form class="newsletter-bar__form" action="<?php echo esc_url( home_url( '/' ) ); ?>" method="get">
+			<label class="screen-reader-text" for="qr-newsletter-email"><?php esc_html_e( 'Email address', 'qr-minimal-store' ); ?></label>
+			<input id="qr-newsletter-email" type="email" name="newsletter_email" placeholder="<?php esc_attr_e( 'Your email address', 'qr-minimal-store' ); ?>" required>
+			<button type="submit"><?php esc_html_e( 'Subscribe', 'qr-minimal-store' ); ?></button>
+		</form>
+	</div>
+</section>
 <footer class="site-footer">
 	<div class="container footer-contact-bar">
 		<div>
 			<p class="eyebrow"><?php esc_html_e( 'Need help with your order?', 'qr-minimal-store' ); ?></p>
-			<p class="footer-call"><?php esc_html_e( 'Call us 24/7: +27 00 000 0000', 'qr-minimal-store' ); ?></p>
+			<p class="footer-call"><?php esc_html_e( 'Contact us: hello@yehudasolutions.com', 'qr-minimal-store' ); ?></p>
 		</div>
 		<div class="footer-contact-meta">
-			<p><?php esc_html_e( '17 Princess Road, London, Greater London NW1 8JR, UK', 'qr-minimal-store' ); ?></p>
+			<p><?php esc_html_e( 'South Africa', 'qr-minimal-store' ); ?></p>
 		</div>
 	</div>
 	<div class="container site-footer__grid site-footer__grid--four">

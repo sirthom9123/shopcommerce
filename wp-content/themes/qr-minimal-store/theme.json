@@ -6,13 +6,13 @@
     "color": {
       "defaultPalette": false,
       "palette": [
-        { "slug": "background", "name": "Background", "color": "#f4f2ec" },
-        { "slug": "surface", "name": "Surface", "color": "#ffffff" },
-        { "slug": "foreground", "name": "Foreground", "color": "#25312a" },
-        { "slug": "muted", "name": "Muted", "color": "#69736c" },
-        { "slug": "primary", "name": "Grass Green", "color": "#457d53" },
-        { "slug": "primary-hover", "name": "Light Grass Green", "color": "#5f966d" },
-        { "slug": "primary-soft", "name": "Soft Grass Green", "color": "#e8f0ea" }
+        { "slug": "background", "name": "Background", "color": "#1a1a2e" },
+        { "slug": "surface", "name": "Surface", "color": "#232347" },
+        { "slug": "foreground", "name": "Foreground", "color": "#e8e8e8" },
+        { "slug": "muted", "name": "Muted", "color": "#8b8ba3" },
+        { "slug": "primary", "name": "Electro Yellow", "color": "#fed700" },
+        { "slug": "primary-hover", "name": "Light Yellow", "color": "#ffe033" },
+        { "slug": "primary-soft", "name": "Soft Yellow", "color": "#3a3520" }
       ]
     },
     "layout": {
@@ -57,7 +57,7 @@
     "elements": {
       "button": {
         "border": {
-          "radius": "999px"
+          "radius": "8px"
         },
         "color": {
           "background": "var(--wp--preset--color--primary)",

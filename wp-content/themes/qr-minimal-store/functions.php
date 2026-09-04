@@ -20,16 +20,110 @@ function qr_minimal_store_setup() {
 	);
 }
 
-add_action( 'wp_enqueue_scripts', 'qr_minimal_store_enqueue_assets' );
+add_action( 'init', 'qr_minimal_store_ensure_primary_menu' );
+function qr_minimal_store_ensure_primary_menu() {
+	$locations = get_theme_mod( 'nav_menu_locations' );
+	if ( ! is_array( $locations ) ) {
+		$locations = array();
+	}
+
+	if ( ! empty( $locations['primary'] ) && is_nav_menu( (int) $locations['primary'] ) ) {
+		return;
+	}
+
+	$menu_name = 'Primary';
+	$menu      = wp_get_nav_menu_object( $menu_name );
+	$menu_id   = $menu ? (int) $menu->term_id : (int) wp_create_nav_menu( $menu_name );
+
+	if ( $menu_id < 1 ) {
+		return;
+	}
+
+	$existing_items = wp_get_nav_menu_items( $menu_id );
+	if ( empty( $existing_items ) ) {
+		$shop_url    = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/shop/' );
+		$account_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : home_url( '/my-account/' );
+		$links       = array(
+			array(
+				'title' => __( 'Home', 'qr-minimal-store' ),
+				'url'   => home_url( '/' ),
+			),
+			array(
+				'title' => __( 'Shop', 'qr-minimal-store' ),
+				'url'   => $shop_url,
+			),
+			array(
+				'title' => __( 'My Account', 'qr-minimal-store' ),
+				'url'   => $account_url,
+			),
+		);
+
+		foreach ( $links as $index => $link ) {
+			wp_update_nav_menu_item(
+				$menu_id,
+				0,
+				array(
+					'menu-item-title'  => $link['title'],
+					'menu-item-url'    => $link['url'],
+					'menu-item-status' => 'publish',
+					'menu-item-type'   => 'custom',
+					'menu-item-position' => $index + 1,
+				)
+			);
+		}
+	}
+
+	$locations['primary'] = $menu_id;
+	set_theme_mod( 'nav_menu_locations', $locations );
+}
+
+function qr_minimal_store_primary_menu_fallback() {
+	$shop_url    = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/shop/' );
+	$account_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : home_url( '/my-account/' );
+	?>
+	<ul class="site-nav__menu">
+		<li><a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'Home', 'qr-minimal-store' ); ?></a></li>
+		<li><a href="<?php echo esc_url( $shop_url ); ?>"><?php esc_html_e( 'Shop', 'qr-minimal-store' ); ?></a></li>
+		<li><a href="<?php echo esc_url( $account_url ); ?>"><?php esc_html_e( 'My Account', 'qr-minimal-store' ); ?></a></li>
+	</ul>
+	<?php
+}
+
+add_action( 'wp_enqueue_scripts', 'qr_minimal_store_enqueue_assets', 20 );
 function qr_minimal_store_enqueue_assets() {
 	$css_file = get_template_directory() . '/assets/css/site.css';
 	$version  = file_exists( $css_file ) ? (string) filemtime( $css_file ) : wp_get_theme()->get( 'Version' );
 
 	wp_enqueue_style(
+		'qr-minimal-store-fonts',
+		'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap',
+		array(),
+		null
+	);
+
+	$style_deps = array( 'qr-minimal-store-fonts' );
+	if ( wp_style_is( 'woocommerce-general', 'registered' ) ) {
+		$style_deps[] = 'woocommerce-general';
+	}
+	if ( wp_style_is( 'woocommerce-layout', 'registered' ) ) {
+		$style_deps[] = 'woocommerce-layout';
+	}
+
+	wp_enqueue_style(
 		'qr-minimal-store',
 		get_template_directory_uri() . '/assets/css/site.css',
-		array(),
+		$style_deps,
 		$version
+	);
+
+	$nav_js = get_template_directory() . '/assets/js/nav-toggle.js';
+	$nav_ver = file_exists( $nav_js ) ? (string) filemtime( $nav_js ) : wp_get_theme()->get( 'Version' );
+	wp_enqueue_script(
+		'qr-minimal-store-nav-toggle',
+		get_template_directory_uri() . '/assets/js/nav-toggle.js',
+		array(),
+		$nav_ver,
+		true
 	);
 
 	if ( is_front_page() ) {
@@ -41,6 +135,16 @@ function qr_minimal_store_enqueue_assets() {
 			get_template_directory_uri() . '/assets/js/product-tabs.js',
 			array(),
 			$js_ver,
+			true
+		);
+
+		$deal_js  = get_template_directory() . '/assets/js/deal-countdown.js';
+		$deal_ver = file_exists( $deal_js ) ? (string) filemtime( $deal_js ) : wp_get_theme()->get( 'Version' );
+		wp_enqueue_script(
+			'qr-minimal-store-deal-countdown',
+			get_template_directory_uri() . '/assets/js/deal-countdown.js',
+			array(),
+			$deal_ver,
 			true
 		);
 	}
@@ -178,6 +282,90 @@ function qr_minimal_store_product_search_bar() {
 		<button type="submit"><?php esc_html_e( 'Search', 'qr-minimal-store' ); ?></button>
 		<input type="hidden" name="post_type" value="product">
 	</form>
+	<?php
+}
+
+add_action( 'customize_register', 'qr_minimal_store_customizer' );
+function qr_minimal_store_customizer( $wp_customize ) {
+	$wp_customize->add_section(
+		'qr_hero_section',
+		array(
+			'title'    => __( 'Hero Banner', 'qr-minimal-store' ),
+			'priority' => 30,
+		)
+	);
+
+	$wp_customize->add_setting(
+		'qr_hero_image',
+		array(
+			'default'           => 0,
+			'sanitize_callback' => 'absint',
+		)
+	);
+
+	$wp_customize->add_control(
+		new WP_Customize_Media_Control(
+			$wp_customize,
+			'qr_hero_image',
+			array(
+				'label'     => __( 'Hero Product Image', 'qr-minimal-store' ),
+				'section'   => 'qr_hero_section',
+				'mime_type' => 'image',
+			)
+		)
+	);
+
+	$wp_customize->add_setting(
+		'qr_deal_product',
+		array(
+			'default'           => 0,
+			'sanitize_callback' => 'absint',
+		)
+	);
+
+	$wp_customize->add_control(
+		'qr_deal_product',
+		array(
+			'label'   => __( 'Deal of the Day — Product ID', 'qr-minimal-store' ),
+			'section' => 'qr_hero_section',
+			'type'    => 'number',
+		)
+	);
+}
+
+add_action( 'wp_footer', 'qr_minimal_store_sticky_add_to_cart' );
+function qr_minimal_store_sticky_add_to_cart() {
+	if ( ! function_exists( 'is_product' ) || ! is_product() ) {
+		return;
+	}
+
+	global $product;
+	if ( ! $product || ! is_a( $product, 'WC_Product' ) ) {
+		return;
+	}
+	?>
+	<div class="sticky-add-to-cart" id="sticky-atc" hidden>
+		<div class="container sticky-add-to-cart__inner">
+			<div class="sticky-add-to-cart__info">
+				<strong><?php echo esc_html( $product->get_name() ); ?></strong>
+				<span><?php echo $product->get_price_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- WooCommerce price HTML. ?></span>
+			</div>
+			<a class="button" href="#product-<?php echo esc_attr( (string) $product->get_id() ); ?>">
+				<?php esc_html_e( 'Add to Cart', 'qr-minimal-store' ); ?>
+			</a>
+		</div>
+	</div>
+	<script>
+	(function(){
+	  var bar = document.getElementById('sticky-atc');
+	  var form = document.querySelector('form.cart');
+	  if (!bar || !form) return;
+	  var io = new IntersectionObserver(function(entries){
+	    bar.hidden = entries[0].isIntersecting;
+	  }, { threshold: 0 });
+	  io.observe(form);
+	})();
+	</script>
 	<?php
 }
 

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * WooCommerce single product template override.
  */

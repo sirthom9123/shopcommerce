@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * WooCommerce archive template override.
  */

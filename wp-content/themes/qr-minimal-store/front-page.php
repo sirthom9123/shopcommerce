@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 get_header();
 ?>
 <section class="hero-campaign">
@@ -14,8 +14,25 @@ get_header();
 			</div>
 		</div>
 		<div class="hero-campaign__visual" aria-hidden="true">
+			<?php
+			$hero_image_id = (int) get_theme_mod( 'qr_hero_image', 0 );
+			if ( $hero_image_id ) {
+				echo wp_get_attachment_image(
+					$hero_image_id,
+					'large',
+					false,
+					array(
+						'class'   => 'hero-campaign__product-img',
+						'loading' => 'eager',
+					)
+				);
+			} else {
+				?>
 			<span class="hero-campaign__orb hero-campaign__orb--large"></span>
 			<span class="hero-campaign__orb hero-campaign__orb--small"></span>
+				<?php
+			}
+			?>
 		</div>
 	</div>
 </section>
@@ -29,10 +46,26 @@ get_header();
 
 <section class="section section--tight benefits">
 	<div class="container benefit-grid">
-		<div><strong><?php esc_html_e( 'Fast Dispatch', 'qr-minimal-store' ); ?></strong><span><?php esc_html_e( 'Orders processed quickly on business days.', 'qr-minimal-store' ); ?></span></div>
-		<div><strong><?php esc_html_e( 'Secure Payments', 'qr-minimal-store' ); ?></strong><span><?php esc_html_e( 'Trusted gateways and protected checkout flow.', 'qr-minimal-store' ); ?></span></div>
-		<div><strong><?php esc_html_e( 'Local Support', 'qr-minimal-store' ); ?></strong><span><?php esc_html_e( 'Get help with pre-sale and post-sale product choices.', 'qr-minimal-store' ); ?></span></div>
-		<div><strong><?php esc_html_e( 'Warranty Friendly', 'qr-minimal-store' ); ?></strong><span><?php esc_html_e( 'Straightforward warranty and returns communication.', 'qr-minimal-store' ); ?></span></div>
+		<div>
+			<span class="benefit-icon" aria-hidden="true">🚚</span>
+			<strong><?php esc_html_e( 'Fast Dispatch', 'qr-minimal-store' ); ?></strong>
+			<span><?php esc_html_e( 'Orders processed quickly on business days.', 'qr-minimal-store' ); ?></span>
+		</div>
+		<div>
+			<span class="benefit-icon" aria-hidden="true">🔒</span>
+			<strong><?php esc_html_e( 'Secure Payments', 'qr-minimal-store' ); ?></strong>
+			<span><?php esc_html_e( 'Trusted gateways and protected checkout flow.', 'qr-minimal-store' ); ?></span>
+		</div>
+		<div>
+			<span class="benefit-icon" aria-hidden="true">💬</span>
+			<strong><?php esc_html_e( 'Local Support', 'qr-minimal-store' ); ?></strong>
+			<span><?php esc_html_e( 'Get help with pre-sale and post-sale product choices.', 'qr-minimal-store' ); ?></span>
+		</div>
+		<div>
+			<span class="benefit-icon" aria-hidden="true">🛡️</span>
+			<strong><?php esc_html_e( 'Warranty Friendly', 'qr-minimal-store' ); ?></strong>
+			<span><?php esc_html_e( 'Straightforward warranty and returns communication.', 'qr-minimal-store' ); ?></span>
+		</div>
 	</div>
 </section>
 
@@ -45,6 +78,44 @@ get_header();
 		<?php echo do_shortcode( '[products limit="4" columns="4" best_selling="true"]' ); ?>
 	</div>
 </section>
+
+<?php
+$deal_product_id = (int) get_theme_mod( 'qr_deal_product', 0 );
+if ( $deal_product_id && function_exists( 'wc_get_product' ) ) :
+	$deal = wc_get_product( $deal_product_id );
+	if ( $deal && $deal->is_on_sale() ) :
+		$sale_end      = $deal->get_date_on_sale_to();
+		$end_timestamp = $sale_end ? $sale_end->getTimestamp() : 0;
+		?>
+<section class="section deal-of-day" data-deal-end="<?php echo esc_attr( (string) $end_timestamp ); ?>">
+	<div class="container">
+		<div class="section-head">
+			<h2><?php esc_html_e( 'Deal of the Day', 'qr-minimal-store' ); ?></h2>
+		</div>
+		<div class="deal-of-day__grid">
+			<div class="deal-of-day__media">
+				<?php echo $deal->get_image( 'woocommerce_single' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- WooCommerce image HTML. ?>
+			</div>
+			<div class="deal-of-day__info">
+				<h3 class="deal-of-day__title"><?php echo esc_html( $deal->get_name() ); ?></h3>
+				<p class="deal-of-day__price"><?php echo $deal->get_price_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- WooCommerce price HTML. ?></p>
+				<?php if ( $end_timestamp ) : ?>
+					<div class="deal-countdown" aria-label="<?php esc_attr_e( 'Time remaining', 'qr-minimal-store' ); ?>">
+						<div class="deal-countdown__unit"><span data-days>00</span><small><?php esc_html_e( 'Days', 'qr-minimal-store' ); ?></small></div>
+						<div class="deal-countdown__unit"><span data-hours>00</span><small><?php esc_html_e( 'Hours', 'qr-minimal-store' ); ?></small></div>
+						<div class="deal-countdown__unit"><span data-minutes>00</span><small><?php esc_html_e( 'Min', 'qr-minimal-store' ); ?></small></div>
+						<div class="deal-countdown__unit"><span data-seconds>00</span><small><?php esc_html_e( 'Sec', 'qr-minimal-store' ); ?></small></div>
+					</div>
+				<?php endif; ?>
+				<a class="button" href="<?php echo esc_url( $deal->get_permalink() ); ?>"><?php esc_html_e( 'Shop this deal', 'qr-minimal-store' ); ?></a>
+			</div>
+		</div>
+	</div>
+</section>
+		<?php
+	endif;
+endif;
+?>
 
 <section id="featured-products" class="section section--alt">
 	<div class="container">
@@ -119,5 +190,25 @@ get_header();
 	</div>
 </section>
 <?php
+if ( function_exists( 'wc_get_products' ) ) {
+	$viewed_raw = '';
+	if ( isset( $_COOKIE['woocommerce_recently_viewed'] ) ) {
+		$viewed_raw = sanitize_text_field( wp_unslash( $_COOKIE['woocommerce_recently_viewed'] ) );
+	}
+	$viewed = array_filter( array_map( 'absint', explode( '|', $viewed_raw ) ) );
+	if ( ! empty( $viewed ) ) {
+		$viewed_ids = implode( ',', array_map( 'absint', array_slice( $viewed, 0, 4 ) ) );
+		?>
+<section class="section section--tight recently-viewed">
+	<div class="container">
+		<div class="section-head section-head--split">
+			<h2><?php esc_html_e( 'Recently Viewed', 'qr-minimal-store' ); ?></h2>
+		</div>
+		<?php echo do_shortcode( '[products ids="' . esc_attr( $viewed_ids ) . '" columns="4"]' ); ?>
+	</div>
+</section>
+		<?php
+	}
+}
 get_footer();
 ?>

@@ -31,11 +31,15 @@ class ThemeContractTests(unittest.TestCase):
                 declarations[name.strip()] = value.strip()
         return declarations
 
-    def test_css_uses_approved_grass_green_tokens(self):
+    def test_css_uses_approved_electro_tokens(self):
         css = self.read("assets/css/site.css").lower()
-        self.assertRegex(css, r"--qr-primary:\s*#457d53")
-        self.assertRegex(css, r"--qr-primary-hover:\s*#5f966d")
-        self.assertNotIn("#fed700", css)
+        self.assertRegex(css, r"--qr-bg:\s*#1a1a2e")
+        self.assertRegex(css, r"--qr-surface:\s*#232347")
+        self.assertRegex(css, r"--qr-primary:\s*#fed700")
+        self.assertRegex(css, r"--qr-primary-hover:\s*#ffe033")
+        self.assertRegex(css, r"--qr-price:\s*#38bdf8")
+        self.assertNotIn("#457d53", css)
+        self.assertNotIn("#5f966d", css)
 
     def test_theme_json_exposes_matching_palette(self):
         data = json.loads(self.read("theme.json"))
@@ -43,8 +47,9 @@ class ThemeContractTests(unittest.TestCase):
             item["slug"]: item["color"].lower()
             for item in data["settings"]["color"]["palette"]
         }
-        self.assertEqual("#457d53", palette["primary"])
-        self.assertEqual("#5f966d", palette["primary-hover"])
+        self.assertEqual("#1a1a2e", palette["background"])
+        self.assertEqual("#fed700", palette["primary"])
+        self.assertEqual("#ffe033", palette["primary-hover"])
 
     def test_header_contains_dynamic_store_actions(self):
         php = self.read("header.php")
@@ -54,7 +59,11 @@ class ThemeContractTests(unittest.TestCase):
         self.assertIn("wc_get_cart_url()", php)
         self.assertIn("WC()->cart->get_cart_contents_count()", php)
         self.assertIn("wp_nav_menu(", php)
+        self.assertIn("qr_minimal_store_primary_menu_fallback", php)
         self.assertIn("qr_minimal_store_render_category_links( 8 );", php)
+        self.assertIn('class="nav-toggle"', php)
+        self.assertIn('id="primary-nav"', php)
+        self.assertIn('aria-controls="primary-nav"', php)
 
     def test_header_has_accessible_navigation_labels(self):
         php = self.read("header.php")
@@ -102,6 +111,11 @@ class ThemeContractTests(unittest.TestCase):
         ):
             self.assertIn(class_name, php)
         self.assertIn("qr_minimal_store_render_category_cards( 5 );", php)
+        self.assertIn("get_theme_mod( 'qr_hero_image'", php)
+        self.assertIn("deal-of-day", php)
+        self.assertIn("data-deal-end", php)
+        self.assertIn("Recently Viewed", php)
+        self.assertIn("benefit-icon", php)
         self.assertNotIn("[product_categories", php)
         self.assertIn('aria-labelledby="category-rail-title"', php)
         self.assertIn('id="category-rail-title" class="screen-reader-text"', php)
@@ -120,7 +134,7 @@ class ThemeContractTests(unittest.TestCase):
     def test_category_card_hover_uses_primary_hover_token(self):
         css = self.read("assets/css/site.css").lower()
         declarations = self.css_rule(css, ".category-card a:hover")
-        self.assertRegex(declarations, r"color:\s*var\(--qr-primary-hover\)")
+        self.assertRegex(declarations, r"color:\s*var\(--qr-primary\)")
 
     def test_category_rail_has_responsive_card_layouts(self):
         css = self.read("assets/css/site.css").lower()
@@ -130,8 +144,9 @@ class ThemeContractTests(unittest.TestCase):
         desktop_list = self.css_rule(desktop_css, ".category-rail__list")
         self.assertRegex(
             desktop_list,
-            r"grid-template-columns:\s*repeat\(5,\s*minmax\(0,\s*1fr\)\)",
+            r"grid-template-columns:\s*repeat\(auto-fit,\s*minmax\(",
         )
+        self.assertRegex(desktop_list, r"justify-content:\s*center")
         self.assertRegex(
             self.css_rule(desktop_css, ".category-card__media"),
             r"aspect-ratio:\s*4\s*/\s*3",
@@ -144,7 +159,7 @@ class ThemeContractTests(unittest.TestCase):
         tablet_list = self.css_rule(tablet_css, ".category-rail__list")
         self.assertRegex(
             tablet_list,
-            r"grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\)",
+            r"grid-template-columns:\s*repeat\(auto-fit,\s*minmax\(",
         )
 
         mobile_list = self.css_rule(mobile_css, ".category-rail__list")
@@ -330,6 +345,8 @@ class ThemeContractTests(unittest.TestCase):
         self.assertIn("'fallback_cb'    => 'wp_page_menu'", php)
         self.assertIn("qr_minimal_store_render_category_links( 3 );", php)
         self.assertIn('class="footer-brand"', php)
+        self.assertIn('class="newsletter-bar"', php)
+        self.assertIn("hello@yehudasolutions.com", php)
         self.assertEqual(3, php.count('class="footer-column"'))
         self.assertNotIn("/product-category/", php)
 
@@ -426,6 +443,26 @@ class ThemeContractTests(unittest.TestCase):
         self.assertEqual("vertical", title.get("-webkit-box-orient"))
         self.assertEqual("2", title.get("-webkit-line-clamp"))
         self.assertEqual("hidden", title.get("overflow"))
+        product = self.css_declarations(css, ".woocommerce ul.products li.product")
+        self.assertIn(product.get("float"), ("none", "none !important"))
+        self.assertIn(product.get("width"), ("100%", "100% !important"))
+        self.assertIn(
+            self.css_declarations(css, ".woocommerce ul.products::before").get("display"),
+            ("none", "none !important"),
+        )
+        self.assertRegex(
+            css,
+            r"\.hot-products \.woocommerce ul\.products,\s*"
+            r"\.product-tabs-section \.woocommerce ul\.products,\s*"
+            r"\.section--alt \.woocommerce ul\.products\s*\{[^}]*"
+            r"grid-template-columns:\s*repeat\(4,\s*minmax\(0,\s*1fr\)\)",
+        )
+        self.assertEqual(
+            "var(--qr-price)",
+            self.css_declarations(css, ".woocommerce ul.products li.product .price").get(
+                "color"
+            ),
+        )
 
     def test_product_detail_css_uses_standard_woocommerce_surfaces(self):
         css = self.read("assets/css/site.css")
@@ -449,6 +486,13 @@ class ThemeContractTests(unittest.TestCase):
         self.assertEqual("flow-root", product.get("display"))
         self.assertEqual("var(--qr-surface)", product.get("background"))
         self.assertEqual("var(--qr-text)", title.get("color"))
+        self.assertEqual(
+            "var(--qr-price)",
+            self.css_declarations(
+                css,
+                ".woocommerce div.product p.price",
+            ).get("color"),
+        )
         self.assertEqual("flex", cart.get("display"))
         self.assertEqual("wrap", cart.get("flex-wrap"))
         self.assertEqual("hidden", gallery.get("overflow"))
@@ -466,10 +510,20 @@ class ThemeContractTests(unittest.TestCase):
         mobile_css = css.split("@media (max-width: 640px)", 1)[1]
         header = self.css_declarations(mobile_css, ".header-main")
         brand = self.css_declarations(mobile_css, ".brand")
-        self.assertEqual("minmax(0, 1fr) auto", header.get("grid-template-columns"))
+        self.assertEqual("minmax(0, 1fr) auto auto", header.get("grid-template-columns"))
         self.assertEqual("0", brand.get("min-width"))
         self.assertEqual("hidden", brand.get("overflow"))
         self.assertEqual("ellipsis", brand.get("text-overflow"))
+
+    def test_header_search_category_select_fits_all_categories_label(self):
+        css = self.read("assets/css/site.css")
+        select = self.css_declarations(css, ".product-search-bar select")
+        self.assertEqual("0 0 auto", select.get("flex"))
+        self.assertEqual("0.75rem 2rem", select.get("padding-inline"))
+        self.assertIn("min-width: 12rem", css)
+        self.assertNotIn("min-width: 110px", css)
+        self.assertNotIn("min-width: 135px", css)
+        self.assertIn("All Categories", self.read("functions.php"))
 
     def test_header_search_controls_keep_visible_keyboard_focus(self):
         css = self.read("assets/css/site.css")
@@ -492,6 +546,15 @@ class ThemeContractTests(unittest.TestCase):
         self.assertIn('aria-selected="true"', php)
         self.assertIn('aria-controls="panel-new"', php)
 
+    def test_theme_php_files_have_no_utf8_bom(self):
+        bom = b"\xef\xbb\xbf"
+        offenders = [
+            str(path.relative_to(THEME)).replace("\\", "/")
+            for path in THEME.rglob("*.php")
+            if path.read_bytes().startswith(bom)
+        ]
+        self.assertEqual([], offenders)
+
     def test_theme_does_not_reference_third_party_brand_assets(self):
         combined = "\n".join(
             self.read(path)
@@ -502,8 +565,26 @@ class ThemeContractTests(unittest.TestCase):
                 "assets/css/site.css",
             )
         ).lower()
-        self.assertNotIn("electro.", combined)
-        self.assertNotIn("#fed700", combined)
+        self.assertNotIn("electro.madrasthemes", combined)
+        self.assertNotIn("madrasthemes.com", combined)
+
+    def test_customizer_and_storefront_scripts_are_wired(self):
+        php = self.read("functions.php")
+        self.assertIn("function qr_minimal_store_customizer(", php)
+        self.assertIn("'qr_hero_image'", php)
+        self.assertIn("'qr_deal_product'", php)
+        self.assertIn("qr-minimal-store-deal-countdown", php)
+        self.assertIn("qr-minimal-store-nav-toggle", php)
+        self.assertIn("woocommerce-layout", php)
+        self.assertIn("function qr_minimal_store_sticky_add_to_cart(", php)
+        js_dir = THEME / "assets" / "js"
+        self.assertTrue((js_dir / "deal-countdown.js").is_file())
+        self.assertTrue((js_dir / "nav-toggle.js").is_file())
+        css = self.read("assets/css/site.css")
+        self.assertIn(".newsletter-bar", css)
+        self.assertIn(".nav-toggle", css)
+        self.assertIn(".sticky-add-to-cart", css)
+        self.assertIn(".deal-of-day", css)
 
 
 if __name__ == "__main__":
