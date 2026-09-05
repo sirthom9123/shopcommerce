@@ -17,6 +17,7 @@
 !/wp-content/plugins/qr-store-bootstrap/
 
 /wp-config.php
+/wp-config-prod.php
 /wp-content/uploads/
 /.superpowers/
 

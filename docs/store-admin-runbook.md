@@ -56,3 +56,22 @@ python tools/importers/yehuda_xlsx_to_woo_csv.py --input "C:\Users\USER\Download
 3. Verify cart and checkout flows end-to-end with a test payment method.
 4. Configure shipping zones and tax settings for live region rules.
 
+## 6) Transactional email (Resend SMTP)
+
+All `wp_mail()` traffic (account verification, password reset, newsletters, WooCommerce order emails) is sent through Resend when an API key is present.
+
+1. Create an API key at [resend.com/api-keys](https://resend.com/api-keys).
+2. Verify the sending domain in Resend (for production, `yehudasolutions.com` or `shop.yehudasolutions.com`).
+3. Put the key in `wp-config.php` only (this file is gitignored):
+
+```php
+define( 'QR_RESEND_API_KEY', 're_xxxxxxxx' );
+define( 'QR_RESEND_FROM_EMAIL', 'no-reply@yehudasolutions.com' );
+define( 'QR_RESEND_FROM_NAME', 'Yehuda Store' );
+define( 'QR_RESEND_REPLY_TO', 'hello@yehudasolutions.com' );
+```
+
+Alternatively set the environment variable `QR_RESEND_API_KEY` — it overrides the constant when non-empty.
+
+SMTP host is `smtp.resend.com`, port `465`, username `resend`, password = the API key. Leave `QR_RESEND_API_KEY` empty on machines that should keep using PHP `mail()`.
+

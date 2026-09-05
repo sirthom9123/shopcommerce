@@ -2,7 +2,7 @@
 /**
  * Plugin Name: QR Store Bootstrap
  * Description: Foundation bootstrap for the minimalist WooCommerce storefront.
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: QR Store
  * License: GPL-2.0-or-later
  */
@@ -11,8 +11,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+define( 'QR_STORE_BOOTSTRAP_FILE', __FILE__ );
 define( 'QR_STORE_BOOTSTRAP_OPTION', 'qr_store_bootstrap_initialized' );
 define( 'QR_STORE_CATALOG_SEEDED_OPTION', 'qr_store_catalog_seeded' );
+
+require_once __DIR__ . '/includes/legal-pages.php';
 
 add_action( 'before_woocommerce_init', 'qr_store_declare_hpos_compatibility' );
 function qr_store_declare_hpos_compatibility() {

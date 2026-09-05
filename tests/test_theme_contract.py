@@ -523,7 +523,12 @@ class ThemeContractTests(unittest.TestCase):
         self.assertIn("min-width: 12rem", css)
         self.assertNotIn("min-width: 110px", css)
         self.assertNotIn("min-width: 135px", css)
-        self.assertIn("All Categories", self.read("functions.php"))
+        php = self.read("functions.php")
+        self.assertIn("All Categories", php)
+        self.assertIn("product-search-bar__icon", php)
+        icon = self.css_declarations(css, ".product-search-bar button")
+        self.assertEqual("#ffffff", icon.get("color"))
+        self.assertNotIn("border: 2px solid #0855a1", css)
 
     def test_header_search_controls_keep_visible_keyboard_focus(self):
         css = self.read("assets/css/site.css")

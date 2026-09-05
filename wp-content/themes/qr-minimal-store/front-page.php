@@ -4,10 +4,10 @@ get_header();
 <section class="hero-campaign">
 	<div class="container hero-campaign__grid">
 		<div class="hero-campaign__content">
-			<p class="eyebrow"><?php esc_html_e( 'Power, security, and smart essentials', 'qr-minimal-store' ); ?></p>
-			<h1><?php esc_html_e( 'Technology that keeps your world moving.', 'qr-minimal-store' ); ?></h1>
-			<p class="hero-campaign__copy"><?php esc_html_e( 'Discover dependable power backup, smart security, computers, and accessories selected for home and business.', 'qr-minimal-store' ); ?></p>
-			<p class="hero-campaign__offer"><?php esc_html_e( 'Built for productive days and protected spaces.', 'qr-minimal-store' ); ?></p>
+			<p class="eyebrow"><?php esc_html_e( 'Smart lifestyle, smart choices', 'qr-minimal-store' ); ?></p>
+			<h1><?php esc_html_e( 'Smart gadgets for everyday living.', 'qr-minimal-store' ); ?></h1>
+			<p class="hero-campaign__copy"><?php esc_html_e( 'Explore smart watches, kitchen appliances, grooming essentials, and lifestyle gadgets — all from trusted brands at great prices.', 'qr-minimal-store' ); ?></p>
+			<p class="hero-campaign__offer"><?php esc_html_e( 'Curated for the modern South African home.', 'qr-minimal-store' ); ?></p>
 			<div class="hero-campaign__actions">
 				<a class="button" href="<?php echo esc_url( function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/shop/' ) ); ?>"><?php esc_html_e( 'Shop now', 'qr-minimal-store' ); ?></a>
 				<a class="button button--ghost" href="#featured-products"><?php esc_html_e( 'Featured picks', 'qr-minimal-store' ); ?></a>
@@ -40,7 +40,7 @@ get_header();
 <section class="category-rail" aria-labelledby="category-rail-title">
 	<div class="container">
 		<h2 id="category-rail-title" class="screen-reader-text"><?php esc_html_e( 'Popular categories', 'qr-minimal-store' ); ?></h2>
-		<?php qr_minimal_store_render_category_cards( 5 ); ?>
+		<?php qr_minimal_store_render_category_cards( 8, array( 'security-camera', 'bags-accessories', 'ups' ) ); ?>
 	</div>
 </section>
 
@@ -75,9 +75,11 @@ get_header();
 			<h2><?php esc_html_e( 'Hot Products Today', 'qr-minimal-store' ); ?></h2>
 			<a href="<?php echo esc_url( function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/shop/' ) ); ?>"><?php esc_html_e( 'See all products', 'qr-minimal-store' ); ?></a>
 		</div>
-		<?php echo do_shortcode( '[products limit="4" columns="4" best_selling="true"]' ); ?>
+		<?php echo do_shortcode( '[recent_products limit="4" columns="4"]' ); ?>
 	</div>
 </section>
+
+<?php qr_minimal_store_render_home_promo_banners(); ?>
 
 <?php
 $deal_product_id = (int) get_theme_mod( 'qr_deal_product', 0 );
@@ -160,7 +162,7 @@ endif;
 	<div class="container trust-strip__grid">
 		<div>
 			<h3><?php esc_html_e( 'Curated range', 'qr-minimal-store' ); ?></h3>
-			<p><?php esc_html_e( 'Focused catalog across power, security, and productivity.', 'qr-minimal-store' ); ?></p>
+			<p><?php esc_html_e( 'Handpicked smart gadgets, kitchen appliances, and lifestyle essentials.', 'qr-minimal-store' ); ?></p>
 		</div>
 		<div>
 			<h3><?php esc_html_e( 'Secure checkout', 'qr-minimal-store' ); ?></h3>
@@ -180,11 +182,11 @@ endif;
 			<span><?php esc_html_e( 'Trusted names we stock', 'qr-minimal-store' ); ?></span>
 		</div>
 		<ul class="brand-strip" aria-label="<?php esc_attr_e( 'Known brands', 'qr-minimal-store' ); ?>">
-			<li>Acer</li>
-			<li>Apple</li>
-			<li>Asus</li>
+			<li>Xiaomi</li>
+			<li>Gizzu</li>
+			<li>Deerma</li>
 			<li>Dell</li>
-			<li>Lenovo</li>
+			<li>Targus</li>
 			<li>Logitech</li>
 		</ul>
 	</div>
