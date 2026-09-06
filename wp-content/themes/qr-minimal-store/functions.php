@@ -74,13 +74,20 @@ function qr_minimal_store_brand_img( $key, $class, $alt = '', $extra = array() )
 		return;
 	}
 
-	$size = getimagesize( $path );
+	$display = array(
+		'favicon'   => array( 36, 36 ),
+		'icon-dark' => array( 36, 36 ),
+		'monogram'  => array( 36, 36 ),
+		'wordmark'  => array( 213, 28 ),
+	);
+	$dims = isset( $display[ $key ] ) ? $display[ $key ] : array( '', '' );
+
 	$atts = array(
 		'class'    => $class,
 		'src'      => qr_minimal_store_brand_url( $key ),
 		'alt'      => $alt,
-		'width'    => isset( $size[0] ) ? (string) $size[0] : '',
-		'height'   => isset( $size[1] ) ? (string) $size[1] : '',
+		'width'    => (string) $dims[0],
+		'height'   => (string) $dims[1],
 		'decoding' => 'async',
 	);
 

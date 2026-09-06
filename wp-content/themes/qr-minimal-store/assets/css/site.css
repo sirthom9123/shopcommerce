@@ -117,19 +117,24 @@ a:hover {
   opacity: 0.88;
 }
 
-.brand__mark {
+.brand img.brand__mark {
   display: none;
   width: 36px;
   height: 36px;
+  max-width: 36px;
+  max-height: 36px;
   flex: 0 0 auto;
   border-radius: 9px;
+  object-fit: contain;
 }
 
-.brand__wordmark {
+.brand img.brand__wordmark {
   display: block;
-  height: 28px;
   width: auto;
+  height: 28px;
   max-width: min(240px, 42vw);
+  max-height: 28px;
+  object-fit: contain;
 }
 
 .custom-logo-link {
@@ -140,13 +145,16 @@ a:hover {
   margin-bottom: 0.55rem;
 }
 
-.brand--footer .brand__mark {
+.brand--footer img.brand__mark {
   width: 40px;
   height: 40px;
+  max-width: 40px;
+  max-height: 40px;
 }
 
-.brand--footer .brand__wordmark {
+.brand--footer img.brand__wordmark {
   height: 30px;
+  max-height: 30px;
   max-width: 260px;
 }
 
@@ -1068,11 +1076,11 @@ button:focus,
     grid-row: 1;
   }
 
-  .brand__mark {
+  .brand img.brand__mark {
     display: block;
   }
 
-  .brand__wordmark {
+  .brand img.brand__wordmark {
     display: none;
   }
 
@@ -1161,9 +1169,11 @@ button:focus,
     min-width: 0;
   }
 
-  .brand__mark {
+  .brand img.brand__mark {
     width: 36px;
     height: 36px;
+    max-width: 36px;
+    max-height: 36px;
   }
 
   .header-main__navigation {
