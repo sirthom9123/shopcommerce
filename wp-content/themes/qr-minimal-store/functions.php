@@ -304,6 +304,69 @@ function qr_minimal_store_ensure_footer_menu() {
 	set_theme_mod( 'nav_menu_locations', $locations );
 }
 
+add_action( 'init', 'qr_minimal_store_ensure_spring_bonanza_page', 20 );
+/**
+ * Publish the campaign landing page and assign its template.
+ * Theme files alone do not create /spring-bonanza/ — WordPress needs a Page post.
+ */
+function qr_minimal_store_ensure_spring_bonanza_page() {
+	if ( get_option( 'qr_minimal_store_bonanza_ready' ) === '1' ) {
+		if ( get_option( 'qr_minimal_store_bonanza_flush' ) ) {
+			flush_rewrite_rules( false );
+			delete_option( 'qr_minimal_store_bonanza_flush' );
+		}
+		return;
+	}
+
+	if ( ! is_readable( get_theme_file_path( 'page-spring-bonanza.php' ) ) ) {
+		return;
+	}
+
+	$page = get_page_by_path( 'spring-bonanza' );
+	if ( ! $page instanceof WP_Post ) {
+		$found = get_posts(
+			array(
+				'post_type'      => 'page',
+				'title'          => 'Spring Bonanza',
+				'post_status'    => array( 'publish', 'draft', 'pending', 'private' ),
+				'posts_per_page' => 1,
+			)
+		);
+		$page = ! empty( $found ) ? $found[0] : null;
+	}
+
+	if ( $page instanceof WP_Post ) {
+		$id = wp_update_post(
+			array(
+				'ID'          => (int) $page->ID,
+				'post_name'   => 'spring-bonanza',
+				'post_status' => 'publish',
+				'post_type'   => 'page',
+			),
+			true
+		);
+	} else {
+		$id = wp_insert_post(
+			array(
+				'post_title'   => 'Spring Bonanza',
+				'post_name'    => 'spring-bonanza',
+				'post_status'  => 'publish',
+				'post_type'    => 'page',
+				'post_content' => '',
+			),
+			true
+		);
+	}
+
+	if ( is_wp_error( $id ) || (int) $id < 1 ) {
+		return;
+	}
+
+	update_post_meta( (int) $id, '_wp_page_template', 'page-spring-bonanza.php' );
+	update_option( 'qr_minimal_store_bonanza_ready', '1' );
+	update_option( 'qr_minimal_store_bonanza_flush', 1 );
+}
+
 add_filter( 'wp_nav_menu_objects', 'qr_minimal_store_footer_omit_sample_page', 10, 2 );
 function qr_minimal_store_footer_omit_sample_page( $items, $args ) {
 	if ( empty( $args->theme_location ) || 'footer' !== $args->theme_location || empty( $items ) ) {
@@ -473,6 +536,27 @@ function qr_minimal_store_enqueue_assets() {
 			get_template_directory_uri() . '/assets/js/deal-countdown.js',
 			array(),
 			$deal_ver,
+			true
+		);
+	}
+
+	if ( is_page_template( 'page-spring-bonanza.php' ) ) {
+		$bonanza_css     = get_template_directory() . '/assets/css/spring-bonanza.css';
+		$bonanza_css_ver = file_exists( $bonanza_css ) ? (string) filemtime( $bonanza_css ) : wp_get_theme()->get( 'Version' );
+		wp_enqueue_style(
+			'qr-spring-bonanza',
+			get_template_directory_uri() . '/assets/css/spring-bonanza.css',
+			array( 'qr-minimal-store' ),
+			$bonanza_css_ver
+		);
+
+		$bonanza_js     = get_template_directory() . '/assets/js/spring-bonanza.js';
+		$bonanza_js_ver = file_exists( $bonanza_js ) ? (string) filemtime( $bonanza_js ) : wp_get_theme()->get( 'Version' );
+		wp_enqueue_script(
+			'qr-spring-bonanza',
+			get_template_directory_uri() . '/assets/js/spring-bonanza.js',
+			array(),
+			$bonanza_js_ver,
 			true
 		);
 	}
@@ -668,6 +752,8 @@ function qr_minimal_store_render_home_promo_banners() {
 	$watch_url = ( $watches && ! is_wp_error( get_term_link( $watches ) ) ) ? get_term_link( $watches ) : $shop;
 	$kit_url   = ( $kitchen && ! is_wp_error( get_term_link( $kitchen ) ) ) ? get_term_link( $kitchen ) : $shop;
 	$from      = $kitchen ? qr_minimal_store_category_from_price( $kitchen ) : '';
+	$bonanza   = get_page_by_path( 'spring-bonanza' );
+	$sale_url  = ( $bonanza instanceof WP_Post ) ? get_permalink( $bonanza ) : home_url( '/spring-bonanza/' );
 	?>
 	<section class="home-promo-banners" aria-label="<?php esc_attr_e( 'Promotions', 'qr-minimal-store' ); ?>">
 		<div class="container home-promo-banners__grid">
@@ -694,9 +780,9 @@ function qr_minimal_store_render_home_promo_banners() {
 			</article>
 			<article class="home-promo-banner home-promo-banner--deal">
 				<div class="home-promo-banner__copy">
-					<p><?php esc_html_e( 'Limited weekly deal', 'qr-minimal-store' ); ?></p>
+					<p><?php esc_html_e( 'Limited time offer', 'qr-minimal-store' ); ?></p>
 					<p class="home-promo-banner__sub"><?php esc_html_e( 'Hurry — offers end when stock runs out.', 'qr-minimal-store' ); ?></p>
-					<a class="button home-promo-banner__cta" href="<?php echo esc_url( $shop ); ?>"><?php esc_html_e( 'Shop the sale', 'qr-minimal-store' ); ?></a>
+					<a class="button home-promo-banner__cta" href="<?php echo esc_url( $sale_url ); ?>"><?php esc_html_e( 'Shop the sale', 'qr-minimal-store' ); ?></a>
 				</div>
 			</article>
 		</div>

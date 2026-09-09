@@ -57,7 +57,7 @@ function qr_store_legal_context() {
 		'returns_html' => qr_store_legal_mailto( 'returns' ),
 		'officer_html' => qr_store_legal_mailto( 'officer' ),
 		'region'       => 'Gauteng, South Africa',
-		'effective'    => '5 September 2026',
+		'effective'    => '8 September 2026',
 		'terms_url'    => esc_url( $terms_url ),
 		'returns_url'  => esc_url( $returns_url ),
 		'privacy_url'  => esc_url( $privacy_url ),
@@ -276,6 +276,7 @@ function qr_store_legal_html_privacy( $ctx ) {
 <li><strong>Courier partners</strong> — name, phone, and delivery address so they can deliver your order.</li>
 <li><strong>Email delivery provider</strong> — to send account, order, newsletter, and support mail.</li>
 <li><strong>Hosting and security providers</strong> — to host the website and protect it.</li>
+<li><strong>Meta Platforms (Facebook / Instagram)</strong> — advertising measurement via the Meta Pixel, so we can understand which ads led to visits and purchases. Meta processes this information under its own terms and may process it outside South Africa.</li>
 <li><strong>Professional advisers or authorities</strong> — where the law requires it, or to protect our legal rights.</li>
 </ul>
 <p>These parties act as operators (processors) or, in PayFast’s case for payment data, as a responsible party for the information they collect to complete the payment. We require operators to use the information only for the agreed purpose.</p>
@@ -286,7 +287,7 @@ function qr_store_legal_html_privacy( $ctx ) {
 <li>account login and security cookies;</li>
 <li>checkout cookies so we can complete your order.</li>
 </ul>
-<p>We do not currently run third-party advertising or analytics pixels on the Store. If that changes, we will update this policy. You can block cookies in your browser; essential store functions such as cart and checkout may then fail.</p>
+<p>We also use the <strong>Meta Pixel</strong> (Facebook / Instagram ads). It sets cookies and similar identifiers to measure visits, product views, add-to-cart, checkout starts, and purchases, and to help us show relevant ads. You can block third-party cookies in your browser; essential store functions such as cart and checkout may then fail, and ad measurement may be incomplete.</p>
 <h2>7. Marketing</h2>
 <p>We only send marketing newsletters after you confirm your email (double opt-in). Every newsletter includes an unsubscribe link. Transactional messages — order confirmation, shipping, password reset, return updates — are not marketing and are sent because they are part of the service.</p>
 <h2>8. How long we keep information</h2>

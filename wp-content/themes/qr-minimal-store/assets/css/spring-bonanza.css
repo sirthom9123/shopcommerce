@@ -1,0 +1,322 @@
+:root {
+  --bonanza-accent: #0071e3;
+  --bonanza-badge: #34c759;
+}
+
+.bonanza-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 4.5rem 0 0;
+  background: linear-gradient(135deg, #0855a1 0%, #0071e3 100%);
+  color: #ffffff;
+}
+
+.bonanza-hero__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(260px, 0.85fr);
+  gap: clamp(2rem, 6vw, 5rem);
+  align-items: center;
+  padding-bottom: 3.5rem;
+}
+
+.bonanza-hero__content {
+  position: relative;
+  z-index: 1;
+}
+
+.bonanza-hero .eyebrow {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.85);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.bonanza-hero h1 {
+  margin: 0.6rem 0 1rem;
+  max-width: 16ch;
+  color: #ffffff;
+  font-size: clamp(2.1rem, 4.6vw, 3.6rem);
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+}
+
+.bonanza-hero__copy {
+  max-width: 58ch;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 1.05rem;
+}
+
+.bonanza-hero__actions {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.bonanza-hero .button {
+  background: #ffffff;
+  border-color: #ffffff;
+  color: var(--qr-primary);
+}
+
+.bonanza-hero .button:hover,
+.bonanza-hero .button:focus {
+  background: var(--qr-primary-soft);
+  border-color: var(--qr-primary-soft);
+  color: var(--qr-primary);
+}
+
+.bonanza-hero .button--ghost {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.7);
+  color: #ffffff;
+}
+
+.bonanza-hero .button--ghost:hover,
+.bonanza-hero .button--ghost:focus {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+.bonanza-hero .button:focus-visible,
+.bonanza-final-cta .button:focus-visible,
+.bonanza-cat-card:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 3px;
+}
+
+.bonanza-final-cta .button:focus-visible {
+  outline-color: var(--bonanza-accent);
+}
+
+.bonanza-hero__visual {
+  position: relative;
+  min-height: 280px;
+}
+
+.bonanza-hero__orb {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.06));
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+}
+
+.bonanza-hero__orb::after {
+  content: "";
+  position: absolute;
+  inset: 13%;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: inherit;
+}
+
+.bonanza-hero__orb--large {
+  width: min(26vw, 300px);
+  aspect-ratio: 1;
+  right: 8%;
+  top: 0;
+}
+
+.bonanza-hero__orb--small {
+  width: min(14vw, 160px);
+  aspect-ratio: 1;
+  left: 0;
+  bottom: 1rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.16);
+  box-shadow: none;
+}
+
+.bonanza-countdown {
+  display: flex;
+  gap: 0.75rem;
+  margin: 1.5rem 0 0;
+}
+
+.bonanza-countdown .deal-countdown__unit {
+  min-width: 64px;
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.bonanza-countdown .deal-countdown__unit span {
+  color: #ffffff;
+}
+
+.bonanza-countdown .deal-countdown__unit small {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.bonanza-countdown__ended {
+  margin: 1.5rem 0 0;
+  font-weight: 700;
+}
+
+.bonanza-trust-bar {
+  background: rgba(0, 0, 0, 0.18);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.bonanza-trust-bar__list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem 1.75rem;
+  margin: 0;
+  padding: 0.9rem 0;
+  list-style: none;
+}
+
+.bonanza-trust-bar__list li {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #ffffff;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.bonanza-trust-bar__dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--bonanza-badge);
+  flex-shrink: 0;
+}
+
+.bonanza-section-lede {
+  margin: 0.35rem 0 0;
+  color: var(--qr-muted);
+}
+
+.bonanza-cat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bonanza-cat-card {
+  display: grid;
+  gap: 0.35rem;
+  height: 100%;
+  padding: 1.35rem 1.25rem;
+  background: var(--qr-surface);
+  border: 1px solid var(--qr-border);
+  border-radius: var(--qr-radius);
+  color: var(--qr-text);
+  box-shadow: var(--qr-shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bonanza-cat-card:hover {
+  color: var(--qr-text);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+}
+
+.bonanza-cat-card strong {
+  font-size: 1.15rem;
+}
+
+.bonanza-cat-card span {
+  color: var(--qr-muted);
+  font-size: 0.92rem;
+}
+
+.bonanza-trust-strip {
+  background: var(--qr-text);
+}
+
+.bonanza-trust-strip h3 {
+  color: #ffffff;
+}
+
+.bonanza-trust-strip p {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.bonanza-final-cta {
+  padding: 2.5rem 0;
+  background: var(--qr-primary-soft);
+  text-align: center;
+}
+
+.bonanza-final-cta h2 {
+  margin: 0 0 1rem;
+  color: var(--qr-text);
+  font-size: clamp(1.35rem, 2.4vw, 1.85rem);
+}
+
+.bonanza-final-cta .button {
+  background: var(--bonanza-accent);
+  border-color: var(--bonanza-accent);
+}
+
+.bonanza-final-cta .button:hover,
+.bonanza-final-cta .button:focus {
+  background: var(--qr-primary-hover);
+  border-color: var(--qr-primary-hover);
+}
+
+@media (max-width: 1024px) {
+  .bonanza-hero__grid {
+    grid-template-columns: 1fr;
+    padding-bottom: 2.5rem;
+  }
+
+  .bonanza-hero__visual {
+    min-height: 180px;
+  }
+
+  .bonanza-cat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .page-template-page-spring-bonanza .benefit-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .page-template-page-spring-bonanza .trust-strip__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .bonanza-hero {
+    padding-top: 3rem;
+  }
+
+  .bonanza-hero__actions .button,
+  .bonanza-final-cta .button {
+    width: 100%;
+  }
+
+  .bonanza-countdown {
+    flex-wrap: wrap;
+  }
+
+  .bonanza-trust-bar__list {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.55rem;
+  }
+
+  .bonanza-cat-grid,
+  .page-template-page-spring-bonanza .benefit-grid,
+  .page-template-page-spring-bonanza .trust-strip__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-template-page-spring-bonanza ul.products {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+}

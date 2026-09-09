@@ -15,6 +15,7 @@
 
 /wp-content/plugins/*
 !/wp-content/plugins/qr-store-bootstrap/
+!/wp-content/plugins/qr-meta-pixel/
 
 /wp-config.php
 /wp-config-prod.php
