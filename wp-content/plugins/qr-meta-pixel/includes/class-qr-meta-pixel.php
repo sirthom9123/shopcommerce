@@ -32,6 +32,7 @@ class QR_Meta_Pixel {
 		add_action( 'wp_body_open', array( $this, 'print_noscript' ), 1 );
 		add_action( 'wp', array( $this, 'queue_contextual_events' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_events_script' ) );
+		add_action( 'woocommerce_add_to_cart', array( $this, 'remember_add_to_cart' ), 10, 6 );
 	}
 
 	/**
@@ -124,6 +125,8 @@ fbq('track', <?php echo wp_json_encode( $event['name'] ); ?><?php echo ! empty( 
 			return;
 		}
 
+		$this->queue_pending_add_to_cart();
+
 		if ( function_exists( 'is_product' ) && is_product() ) {
 			$product = wc_get_product( get_the_ID() );
 			if ( $product ) {
@@ -172,6 +175,76 @@ fbq('track', <?php echo wp_json_encode( $event['name'] ); ?><?php echo ! empty( 
 				$this->queue_purchase( $order_id );
 			}
 		}
+	}
+
+	/**
+	 * Classic (non-AJAX) add-to-cart on single product pages does a full
+	 * page redirect, so the 'added_to_cart' jQuery event in events.js never
+	 * fires for it (that event only fires for the AJAX add-to-cart flow used
+	 * on shop/archive loops and WooCommerce Blocks). Remember the add here,
+	 * server-side, and fire it as a queued pixel event on the very next page
+	 * load instead, so AddToCart is tracked no matter which flow was used.
+	 *
+	 * @param string $cart_item_key Cart item key.
+	 * @param int    $product_id Product ID.
+	 * @param int    $quantity Quantity added.
+	 * @param int    $variation_id Variation ID, if any.
+	 */
+	public function remember_add_to_cart( $cart_item_key, $product_id, $quantity, $variation_id = 0, $variation = array(), $cart_item_data = array() ) {
+		// The AJAX add-to-cart flow is already tracked client-side via the
+		// 'added_to_cart' / 'wc-blocks_added_to_cart' JS events in events.js.
+		// Only the classic full-page-redirect flow needs this fallback.
+		if ( wp_doing_ajax() ) {
+			return;
+		}
+		if ( ! function_exists( 'WC' ) || ! WC()->session ) {
+			return;
+		}
+
+		$id = $variation_id ? (int) $variation_id : (int) $product_id;
+		if ( $id < 1 ) {
+			return;
+		}
+
+		WC()->session->set(
+			'qr_meta_pixel_pending_atc',
+			array(
+				'id'       => (string) $id,
+				'quantity' => (int) $quantity,
+			)
+		);
+	}
+
+	/**
+	 * Queue the AddToCart event remembered by remember_add_to_cart(), if any,
+	 * exactly once, then clear it so it doesn't fire again on a later page.
+	 */
+	private function queue_pending_add_to_cart() {
+		if ( ! function_exists( 'WC' ) || ! WC()->session ) {
+			return;
+		}
+
+		$pending = WC()->session->get( 'qr_meta_pixel_pending_atc' );
+		if ( ! $pending || empty( $pending['id'] ) ) {
+			return;
+		}
+
+		WC()->session->set( 'qr_meta_pixel_pending_atc', null );
+
+		$this->queued_events[] = array(
+			'name'   => 'AddToCart',
+			'params' => array(
+				'content_ids'  => array( $pending['id'] ),
+				'content_type' => 'product',
+				'contents'     => array(
+					array(
+						'id'       => $pending['id'],
+						'quantity' => (int) $pending['quantity'],
+					),
+				),
+				'currency'     => get_woocommerce_currency(),
+			),
+		);
 	}
 
 	/**
