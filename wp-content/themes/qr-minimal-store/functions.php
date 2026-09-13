@@ -367,6 +367,84 @@ function qr_minimal_store_ensure_spring_bonanza_page() {
 	update_option( 'qr_minimal_store_bonanza_flush', 1 );
 }
 
+/**
+ * Visible product IDs from the active qr-promos sale, else WooCommerce on-sale products.
+ *
+ * @return int[]
+ */
+function qr_minimal_store_promo_product_ids() {
+	$ids = array();
+
+	if ( class_exists( 'QR_Promos' ) ) {
+		$promo = QR_Promos::get_active_promo();
+		if ( $promo ) {
+			$meta = QR_Promos::get_promo_meta( $promo->ID );
+			$ids  = $meta['product_ids'];
+			if ( $meta['featured'] ) {
+				$ids = array_merge( array( $meta['featured'] ), $ids );
+			}
+		}
+	}
+
+	if ( empty( $ids ) && function_exists( 'wc_get_product_ids_on_sale' ) ) {
+		$ids = wc_get_product_ids_on_sale();
+	}
+
+	$visible = array();
+	foreach ( $ids as $id ) {
+		$id = absint( $id );
+		if ( $id < 1 || in_array( $id, $visible, true ) ) {
+			continue;
+		}
+		$product = function_exists( 'wc_get_product' ) ? wc_get_product( $id ) : null;
+		if ( ! $product || ! $product->is_visible() ) {
+			continue;
+		}
+		$visible[] = $id;
+	}
+
+	return $visible;
+}
+
+/**
+ * Unix timestamp for the active promo end, or 0.
+ *
+ * @return int
+ */
+function qr_minimal_store_active_promo_end() {
+	if ( ! class_exists( 'QR_Promos' ) ) {
+		return 0;
+	}
+	$promo = QR_Promos::get_active_promo();
+	if ( ! $promo ) {
+		return 0;
+	}
+	$meta = QR_Promos::get_promo_meta( $promo->ID );
+	return (int) $meta['end'];
+}
+
+/**
+ * Render a WooCommerce product grid for specific IDs, preserving promo order.
+ *
+ * @param int[] $ids     Product IDs.
+ * @param int   $columns Grid columns.
+ */
+function qr_minimal_store_render_product_ids( $ids, $columns = 4 ) {
+	$ids = array_values( array_filter( array_map( 'absint', (array) $ids ) ) );
+	if ( empty( $ids ) || ! function_exists( 'WC' ) ) {
+		return;
+	}
+
+	echo do_shortcode(
+		sprintf(
+			'[products ids="%s" columns="%d" limit="%d" orderby="post__in"]',
+			esc_attr( implode( ',', $ids ) ),
+			max( 1, (int) $columns ),
+			count( $ids )
+		)
+	);
+}
+
 add_filter( 'wp_nav_menu_objects', 'qr_minimal_store_footer_omit_sample_page', 10, 2 );
 function qr_minimal_store_footer_omit_sample_page( $items, $args ) {
 	if ( empty( $args->theme_location ) || 'footer' !== $args->theme_location || empty( $items ) ) {

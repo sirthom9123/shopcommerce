@@ -10,34 +10,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 $shop_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/shop/' );
 
-$end           = new DateTime( '2026-09-30 23:59:59', wp_timezone() );
-$end_timestamp = $end->getTimestamp();
-
-/*
- * Featured product slugs — store owner can swap these if the lineup changes.
- * Resolved at runtime so IDs are not hardcoded.
- */
-$featured_slugs = array(
-	'xiaomi-smart-scale-s200',
-	'xiaomi-handheld-garment-steamer',
-	'xiaomi-compact-h101-foldable-hair-dryer',
-	'xiaomi-massage-gun-2',
-);
-
-$featured_ids = array();
-foreach ( $featured_slugs as $featured_slug ) {
-	$found = get_posts(
-		array(
-			'name'           => $featured_slug,
-			'post_type'      => 'product',
-			'post_status'    => 'publish',
-			'posts_per_page' => 1,
-			'fields'         => 'ids',
-		)
-	);
-	if ( ! empty( $found ) ) {
-		$featured_ids[] = (int) $found[0];
-	}
+$promo_ids     = function_exists( 'qr_minimal_store_promo_product_ids' ) ? qr_minimal_store_promo_product_ids() : array();
+$featured_ids  = array_slice( $promo_ids, 0, 4 );
+$end_timestamp = function_exists( 'qr_minimal_store_active_promo_end' ) ? qr_minimal_store_active_promo_end() : 0;
+if ( $end_timestamp < 1 ) {
+	$end           = new DateTime( '2026-09-30 23:59:59', wp_timezone() );
+	$end_timestamp = $end->getTimestamp();
 }
 
 $category_cards = array(
@@ -95,15 +73,7 @@ get_header();
 		<div class="section-head">
 			<h2><?php esc_html_e( 'Top Picks This Spring', 'qr-minimal-store' ); ?></h2>
 		</div>
-		<?php
-		if ( function_exists( 'WC' ) ) {
-			if ( count( $featured_ids ) >= 4 ) {
-				echo do_shortcode( '[products ids="' . esc_attr( implode( ',', $featured_ids ) ) . '" columns="4"]' );
-			} else {
-				echo do_shortcode( '[products limit="4" columns="4" orderby="popularity"]' );
-			}
-		}
-		?>
+		<?php qr_minimal_store_render_product_ids( $featured_ids, 4 ); ?>
 	</div>
 </section>
 
@@ -167,18 +137,13 @@ get_header();
 
 <section class="section">
 	<div class="container">
-		<div class="section-head section-head--split">
+		<div class="section-head">
 			<div>
-				<h2><?php esc_html_e( 'Everything 5% Off', 'qr-minimal-store' ); ?></h2>
-				<p class="bonanza-section-lede"><?php esc_html_e( 'Browse the full range — sale prices applied at checkout', 'qr-minimal-store' ); ?></p>
+				<h2><?php esc_html_e( 'Spring Bonanza Sale', 'qr-minimal-store' ); ?></h2>
+				<p class="bonanza-section-lede"><?php esc_html_e( 'Every product in this promo — sale prices are shown on each item', 'qr-minimal-store' ); ?></p>
 			</div>
-			<a href="<?php echo esc_url( $shop_url ); ?>"><?php esc_html_e( 'View All', 'qr-minimal-store' ); ?></a>
 		</div>
-		<?php
-		if ( function_exists( 'WC' ) ) {
-			echo do_shortcode( '[products limit="12" columns="4" orderby="popularity"]' );
-		}
-		?>
+		<?php qr_minimal_store_render_product_ids( $promo_ids, 4 ); ?>
 	</div>
 </section>
 
@@ -194,7 +159,7 @@ get_header();
 		</div>
 		<div>
 			<h3><?php esc_html_e( 'Spring Bonanza Guarantee', 'qr-minimal-store' ); ?></h3>
-			<p><?php esc_html_e( '5% off everything, no minimum order required', 'qr-minimal-store' ); ?></p>
+			<p><?php esc_html_e( 'Sale prices on every Spring Bonanza product, no minimum order required', 'qr-minimal-store' ); ?></p>
 		</div>
 	</div>
 </section>
