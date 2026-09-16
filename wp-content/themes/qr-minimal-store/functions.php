@@ -3,6 +3,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * ONE-TIME FIX: Add wc_post_id_ prefix to CTX Feed product IDs.
+ * This runs once on the next page load, then self-deletes.
+ * Safe to remove this block after it has run.
+ */
+add_action( 'init', function() {
+	if ( get_transient( 'ctx_feed_prefix_fix_done' ) ) {
+		return;
+	}
+	$option_name = 'wf_feed_yehuda-store-facebook-catalog';
+	$feed = get_option( $option_name );
+	if ( $feed && isset( $feed['feedrules']['prefix'] ) ) {
+		$feed['feedrules']['prefix'][0] = 'wc_post_id_';  // Product Id (id)
+		$feed['feedrules']['prefix'][3] = 'wc_post_id_';  // Item Group Id (item_group_id)
+		update_option( $option_name, $feed );
+		set_transient( 'ctx_feed_prefix_fix_done', 1, DAY_IN_SECONDS );
+	}
+} );
+
 add_action( 'after_setup_theme', 'qr_minimal_store_setup' );
 function qr_minimal_store_setup() {
 	add_theme_support( 'title-tag' );
