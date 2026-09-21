@@ -1087,3 +1087,28 @@ function qr_minimal_store_prepend_checkout_trust_block( $content, $block ) {
 	return ob_get_clean() . $content;
 }
 
+/**
+ * Footer Google Customer Reviews badge. PHP-rendered so it is visible locally
+ * even when Google's widget script draws an empty 0×0 overlay.
+ */
+function qr_minimal_store_google_reviews_badge() {
+	if ( class_exists( 'QR_Google_Customer_Reviews' ) ) {
+		QR_Google_Customer_Reviews::instance()->badge_markup();
+		return;
+	}
+
+	$host = wp_parse_url( home_url(), PHP_URL_HOST );
+	$url  = 'https://customerreviews.google.com/v/merchant?q=' . rawurlencode( (string) $host ) . '&c=ZA&v=19';
+	?>
+	<div id="qr-gcr-rating-badge" class="qr-gcr-rating-badge qr-gcr-rating-badge--fallback">
+		<a class="qr-gcr-fallback" href="<?php echo esc_url( $url ); ?>" target="_blank" rel="noopener noreferrer">
+			<span class="qr-gcr-fallback__mark" aria-hidden="true">G</span>
+			<span>
+				<strong><?php esc_html_e( 'Google Customer Reviews', 'qr-minimal-store' ); ?></strong>
+				<small><?php esc_html_e( 'Rating not available yet', 'qr-minimal-store' ); ?></small>
+			</span>
+		</a>
+	</div>
+	<?php
+}
+

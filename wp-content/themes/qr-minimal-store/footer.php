@@ -73,6 +73,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	</div>
 	<div class="container site-footer__legal">
 		<p><?php echo esc_html( sprintf( /* translators: 1: year, 2: site name */ __( '© %1$s %2$s. South Africa. All rights reserved.', 'qr-minimal-store' ), gmdate( 'Y' ), get_bloginfo( 'name' ) ) ); ?></p>
+		<?php qr_minimal_store_google_reviews_badge(); ?>
 	</div>
 </footer>
 <?php wp_footer(); ?>
