@@ -232,6 +232,7 @@ a:hover {
 }
 
 .product-search-bar input[type="search"] {
+  flex: 1 1 auto;
   min-width: 0;
 }
 
@@ -1313,7 +1314,11 @@ button:focus,
   }
 
   .product-search-bar select {
-    min-width: 11.5rem;
+    flex: 0 1 auto;
+    min-width: 4.5rem;
+    max-width: 9rem;
+    padding-inline: 0.5rem 1.5rem;
+    font-size: 0.82rem;
   }
 
   .product-search-bar button {
