@@ -875,13 +875,13 @@ function qr_minimal_store_render_home_promo_banners() {
 					<?php echo $kitchen ? qr_minimal_store_category_image_html( $kitchen ) : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- WooCommerce/attachment image HTML. ?>
 				</div>
 			</article>
-			<article class="home-promo-banner home-promo-banner--deal">
+			<!-- <article class="home-promo-banner home-promo-banner--deal">
 				<div class="home-promo-banner__copy">
 					<p><?php esc_html_e( 'Limited time offer', 'qr-minimal-store' ); ?></p>
 					<p class="home-promo-banner__sub"><?php esc_html_e( 'Hurry — offers end when stock runs out.', 'qr-minimal-store' ); ?></p>
 					<a class="button home-promo-banner__cta" href="<?php echo esc_url( $sale_url ); ?>"><?php esc_html_e( 'Shop the sale', 'qr-minimal-store' ); ?></a>
 				</div>
-			</article>
+			</article> -->
 		</div>
 	</section>
 	<?php

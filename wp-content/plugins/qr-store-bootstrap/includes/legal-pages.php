@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'QR_STORE_LEGAL_VERSION', '1.0.4' );
+define( 'QR_STORE_LEGAL_VERSION', '1.0.5' );
 
 require_once __DIR__ . '/legal-content.php';
 

@@ -112,8 +112,8 @@ function qr_store_legal_html_terms( $ctx ) {
 <h2>4. Accounts</h2>
 <p>You can browse without an account. An account lets you track orders, save details, and manage newsletter preferences. You are responsible for keeping your login details confidential and for activity on your account. Tell us promptly if you think someone else has used it.</p>
 <p>We may suspend or close an account where we reasonably suspect fraud, abuse, chargebacks in bad faith, or a legal risk to the Store or other customers.</p>
-<h2>5. Products, pricing, and VAT</h2>
-<p>Prices are shown in South African Rand (ZAR) and include VAT unless we clearly say otherwise. Product images are illustrative. Specifications come from manufacturers and suppliers; we take care to keep listings accurate, but we may correct obvious errors.</p>
+<h2>5. Products and pricing</h2>
+<p>Prices are shown in South African Rand (ZAR). Yehuda Solutions (Pty) Ltd is not registered for VAT, so no VAT is charged on products or delivery. Product images are illustrative. Specifications come from manufacturers and suppliers; we take care to keep listings accurate, but we may correct obvious errors.</p>
 <p>Stock and promotions are limited. If an item cannot be fulfilled after you order — for example because of a pricing error, supplier failure, or stock mismatch — we will let you know and refund any amount already paid for that item.</p>
 <h2>6. Orders and when a sale is made</h2>
 <p>When you submit an order you offer to buy the goods at the price and on the terms shown at checkout. A binding sale is made when we accept that order, usually by sending an order confirmation and receiving successful payment.</p>
@@ -121,7 +121,7 @@ function qr_store_legal_html_terms( $ctx ) {
 <h2>7. Payment</h2>
 <p>You pay through the methods shown at checkout. Card and Instant EFT payments are processed by PayFast, a South African payment service provider. We do not store your full card number on our servers. Until payment clears, we may withhold dispatch.</p>
 <h2>8. Delivery</h2>
-<p>We deliver within South Africa. Delivery is <strong>R250 including VAT</strong> on orders under R2&nbsp;000, and <strong>free</strong> on orders of R2&nbsp;000 or more (based on the cart subtotal shown at checkout). Typical delivery is <strong>2–3 working days</strong> after dispatch, depending on your area and the courier.</p>
+<p>We deliver within South Africa. Delivery is <strong>R250</strong> on orders under R2&nbsp;000, and <strong>free</strong> on orders of R2&nbsp;000 or more. Orders made up only of Xiaomi products pay <strong>R50</strong> delivery under R2&nbsp;500 and get <strong>free</strong> delivery from R2&nbsp;500 (based on the cart subtotal shown at checkout). Typical delivery is <strong>2–3 working days</strong> after dispatch, depending on your area and the courier.</p>
 <p>Working days exclude weekends and South African public holidays. Times are estimates, not guarantees. Events outside our reasonable control — including courier disruption, severe weather, or load-shedding affecting depots — can delay delivery.</p>
 <p>You must provide a complete, deliverable address. Risk in the goods passes when they are delivered to that address (or collected, if collection is arranged). Please check the parcel on arrival and tell us promptly if it arrived damaged or incomplete.</p>
 <h2>9. Returns, refunds, and quality</h2>
