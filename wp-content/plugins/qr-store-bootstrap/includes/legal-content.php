@@ -57,7 +57,7 @@ function qr_store_legal_context() {
 		'returns_html' => qr_store_legal_mailto( 'returns' ),
 		'officer_html' => qr_store_legal_mailto( 'officer' ),
 		'region'       => 'Gauteng, South Africa',
-		'effective'    => '8 September 2026',
+		'effective'    => '20 October 2026',
 		'terms_url'    => esc_url( $terms_url ),
 		'returns_url'  => esc_url( $returns_url ),
 		'privacy_url'  => esc_url( $privacy_url ),
@@ -120,8 +120,8 @@ function qr_store_legal_html_terms( $ctx ) {
 <p>We may decline or cancel an order (and refund you) if payment fails, the goods are unavailable, we cannot deliver to your address, or we reasonably suspect fraud or unauthorised use.</p>
 <h2>7. Payment</h2>
 <p>You pay through the methods shown at checkout. Card and Instant EFT payments are processed by PayFast, a South African payment service provider. We do not store your full card number on our servers. Until payment clears, we may withhold dispatch.</p>
-<h2>8. Delivery</h2>
-<p>We deliver within South Africa. Delivery is <strong>R250</strong> on orders under R2&nbsp;000, and <strong>free</strong> on orders of R2&nbsp;000 or more. Orders made up only of Xiaomi products pay <strong>R50</strong> delivery under R2&nbsp;500 and get <strong>free</strong> delivery from R2&nbsp;500 (based on the cart subtotal shown at checkout). Typical delivery is <strong>2–3 working days</strong> after dispatch, depending on your area and the courier.</p>
+<h2 id="delivery">8. Delivery</h2>
+<p>We deliver within South Africa. For every order, delivery is <strong>R50</strong> when the cart subtotal shown at checkout is under R2&nbsp;500, and <strong>free</strong> when that subtotal is R2&nbsp;500 or more. Typical delivery is <strong>2–3 working days</strong> after dispatch, depending on your area and the courier.</p>
 <p>Working days exclude weekends and South African public holidays. Times are estimates, not guarantees. Events outside our reasonable control — including courier disruption, severe weather, or load-shedding affecting depots — can delay delivery.</p>
 <p>You must provide a complete, deliverable address. Risk in the goods passes when they are delivered to that address (or collected, if collection is arranged). Please check the parcel on arrival and tell us promptly if it arrived damaged or incomplete.</p>
 <h2>9. Returns, refunds, and quality</h2>
@@ -212,7 +212,7 @@ function qr_store_legal_html_returns( $ctx ) {
 <h2>6. Manufacturer warranties</h2>
 <p>Many products carry a manufacturer warranty in addition to your CPA rights. Warranty terms are those of the manufacturer. We will help you open a warranty claim where we reasonably can. A manufacturer warranty never replaces the CPA implied warranty.</p>
 <h2>7. Delivery times and failed delivery</h2>
-<p>Delivery estimates are in the <a href="{$ctx['terms_url']}">Platform Terms</a>. If a courier cannot deliver because of an incomplete address or nobody is available after reasonable attempts, extra delivery attempts or returns to depot may delay the order. If a parcel is marked delivered but you did not receive it, email {$ctx['orders_html']} — we will raise a trace with the courier.</p>
+<p>Delivery fees and timing are in <a href="{$ctx['terms_url']}#delivery">Delivery</a> in our Platform Terms (currently <strong>R50</strong> under R2&nbsp;500 subtotal, <strong>free</strong> from R2&nbsp;500). If a courier cannot deliver because of an incomplete address or nobody is available after reasonable attempts, extra delivery attempts or returns to depot may delay the order. If a parcel is marked delivered but you did not receive it, email {$ctx['orders_html']} — we will raise a trace with the courier.</p>
 <h2>8. Contact</h2>
 <p>Returns and warranty queries: {$ctx['returns_html']}.</p>
 <p>Questions about an existing order (status, delivery, missing parcel): {$ctx['orders_html']}.</p>
