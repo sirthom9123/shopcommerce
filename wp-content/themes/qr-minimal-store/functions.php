@@ -1041,7 +1041,7 @@ function qr_minimal_store_render_checkout_trust() {
 		array(
 			'icon'  => 'pay',
 			'title' => __( 'Protected payments', 'qr-minimal-store' ),
-			'text'  => __( 'Card and EFT processed by trusted gateways.', 'qr-minimal-store' ),
+			'text'  => __( 'Card, EFT, Mobicred and store cards (RCS), subject to approval.', 'qr-minimal-store' ),
 		),
 		array(
 			'icon'  => 'truck',

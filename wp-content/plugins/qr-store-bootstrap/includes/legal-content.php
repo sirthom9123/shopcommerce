@@ -57,7 +57,7 @@ function qr_store_legal_context() {
 		'returns_html' => qr_store_legal_mailto( 'returns' ),
 		'officer_html' => qr_store_legal_mailto( 'officer' ),
 		'region'       => 'Gauteng, South Africa',
-		'effective'    => '20 October 2026',
+		'effective'    => '21 October 2026',
 		'terms_url'    => esc_url( $terms_url ),
 		'returns_url'  => esc_url( $returns_url ),
 		'privacy_url'  => esc_url( $privacy_url ),
@@ -120,6 +120,7 @@ function qr_store_legal_html_terms( $ctx ) {
 <p>We may decline or cancel an order (and refund you) if payment fails, the goods are unavailable, we cannot deliver to your address, or we reasonably suspect fraud or unauthorised use.</p>
 <h2>7. Payment</h2>
 <p>You pay through the methods shown at checkout. Card and Instant EFT payments are processed by PayFast, a South African payment service provider. We do not store your full card number on our servers. Until payment clears, we may withhold dispatch.</p>
+<p>Through PayFast you may also be able to pay with Mobicred or a store card (RCS). These are credit products offered by Mobicred and RCS, not by {$ctx['operator']}; we are not a credit provider. Credit is subject to the provider's own approval, terms, and fees, and any credit agreement is between you and that provider. Our prices are the same whichever payment method you use.</p>
 <h2 id="delivery">8. Delivery</h2>
 <p>We deliver within South Africa. For every order, delivery is <strong>R50</strong> when the cart subtotal shown at checkout is under R2&nbsp;500, and <strong>free</strong> when that subtotal is R2&nbsp;500 or more. Typical delivery is <strong>2–3 working days</strong> after dispatch, depending on your area and the courier.</p>
 <p>Working days exclude weekends and South African public holidays. Times are estimates, not guarantees. Events outside our reasonable control — including courier disruption, severe weather, or load-shedding affecting depots — can delay delivery.</p>

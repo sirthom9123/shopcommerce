@@ -54,7 +54,12 @@ get_header();
 		<div>
 			<span class="benefit-icon" aria-hidden="true">🔒</span>
 			<strong><?php esc_html_e( 'Secure Payments', 'qr-minimal-store' ); ?></strong>
-			<span><?php esc_html_e( 'Trusted gateways and protected checkout flow.', 'qr-minimal-store' ); ?></span>
+			<span><?php esc_html_e( 'Pay securely with Payfast, including Mobicred and store cards (RCS), subject to approval.', 'qr-minimal-store' ); ?></span>
+			<?php
+			if ( function_exists( 'qr_payment_badges_logos' ) ) {
+				qr_payment_badges_logos();
+			}
+			?>
 		</div>
 		<div>
 			<span class="benefit-icon" aria-hidden="true">💬</span>
