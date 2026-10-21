@@ -2,7 +2,7 @@
 /**
  * Plugin Name: QR Store — Meta Pixel
  * Description: Facebook / Meta Pixel base code plus WooCommerce standard events (ViewContent, AddToCart, InitiateCheckout, Purchase, Search).
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: Yehuda Solutions
  * Requires at least: 6.6
  * Requires Plugins: woocommerce
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'QR_META_PIXEL_VERSION', '1.0.0' );
+define( 'QR_META_PIXEL_VERSION', '1.1.0' );
 define( 'QR_META_PIXEL_FILE', __FILE__ );
 define( 'QR_META_PIXEL_PATH', plugin_dir_path( __FILE__ ) );
 define( 'QR_META_PIXEL_URL', plugin_dir_url( __FILE__ ) );

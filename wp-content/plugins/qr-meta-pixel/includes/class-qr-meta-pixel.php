@@ -71,7 +71,7 @@ class QR_Meta_Pixel {
 	}
 
 	public function print_base_code() {
-		if ( ! $this->should_print() ) {
+		if ( ! $this->should_print() || $this->consent_gated() ) {
 			return;
 		}
 
@@ -103,15 +103,11 @@ fbq('track', <?php echo wp_json_encode( $event['name'] ); ?><?php echo ! empty( 
 <!-- End Meta Pixel Code -->
 		<?php
 
-		if ( $this->purchase_order ) {
-			$this->purchase_order->update_meta_data( '_qr_meta_pixel_purchase', '1' );
-			$this->purchase_order->save();
-			$this->purchase_order = null;
-		}
+		$this->mark_purchase();
 	}
 
 	public function print_noscript() {
-		if ( ! $this->should_print() ) {
+		if ( ! $this->should_print() || $this->consent_gated() ) {
 			return;
 		}
 
@@ -298,11 +294,18 @@ fbq('track', <?php echo wp_json_encode( $event['name'] ); ?><?php echo ! empty( 
 			return;
 		}
 
+		$deps = array( 'jquery' );
+		if ( $this->consent_gated() ) {
+			$this->enqueue_loader();
+			$deps[] = 'qr-meta-pixel-loader';
+			$this->mark_purchase();
+		}
+
 		$path = QR_META_PIXEL_PATH . 'assets/js/events.js';
 		wp_enqueue_script(
 			'qr-meta-pixel-events',
 			QR_META_PIXEL_URL . 'assets/js/events.js',
-			array( 'jquery' ),
+			$deps,
 			file_exists( $path ) ? (string) filemtime( $path ) : QR_META_PIXEL_VERSION,
 			true
 		);
@@ -314,6 +317,45 @@ fbq('track', <?php echo wp_json_encode( $event['name'] ); ?><?php echo ! empty( 
 				'currency' => function_exists( 'get_woocommerce_currency' ) ? get_woocommerce_currency() : 'ZAR',
 			)
 		);
+	}
+
+	/**
+	 * QR Analytics is active, so the pixel must wait for marketing consent.
+	 * The loader is the same for every cached page.
+	 */
+	private function consent_gated() {
+		return function_exists( 'qr_analytics_consent_gate_active' ) && qr_analytics_consent_gate_active();
+	}
+
+	/**
+	 * Static loader. It does not include customer details, so a full-page cache can store it.
+	 */
+	private function enqueue_loader() {
+		$path = QR_META_PIXEL_PATH . 'assets/js/loader.js';
+		wp_enqueue_script(
+			'qr-meta-pixel-loader',
+			QR_META_PIXEL_URL . 'assets/js/loader.js',
+			array( 'qr-analytics-consent' ),
+			file_exists( $path ) ? (string) filemtime( $path ) : QR_META_PIXEL_VERSION,
+			true
+		);
+		wp_localize_script(
+			'qr-meta-pixel-loader',
+			'qrMetaPixelBoot',
+			array(
+				'pixelId' => self::pixel_id(),
+				'events'  => $this->queued_events,
+			)
+		);
+	}
+
+	private function mark_purchase() {
+		if ( ! $this->purchase_order ) {
+			return;
+		}
+		$this->purchase_order->update_meta_data( '_qr_meta_pixel_purchase', '1' );
+		$this->purchase_order->save();
+		$this->purchase_order = null;
 	}
 
 	/**

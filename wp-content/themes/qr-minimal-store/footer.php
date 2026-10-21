@@ -68,6 +68,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<?php foreach ( qr_minimal_store_legal_pages() as $legal_page ) : ?>
 				<li><a href="<?php echo esc_url( $legal_page['url'] ); ?>"><?php echo esc_html( $legal_page['title'] ); ?></a></li>
 				<?php endforeach; ?>
+				<li><button type="button" class="qr-consent-open" id="qr-consent-settings"><?php esc_html_e( 'Cookie & privacy settings', 'qr-minimal-store' ); ?></button></li>
 			</ul>
 		</div>
 	</div>

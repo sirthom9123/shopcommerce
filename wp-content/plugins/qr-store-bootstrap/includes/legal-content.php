@@ -244,6 +244,7 @@ function qr_store_legal_html_privacy( $ctx ) {
 <li><strong>Support:</strong> messages you send to {$ctx['store_html']}, {$ctx['orders_html']}, or {$ctx['returns_html']}, or via WhatsApp if you use it.</li>
 <li><strong>Marketing:</strong> newsletter email address and confirmation status (we use double opt-in).</li>
 <li><strong>Shopping behaviour on our site:</strong> cart contents, including snapshots used to remind you about an unfinished checkout if we have your email.</li>
+<li><strong>Site analytics (optional):</strong> if you accept analytics, a random visitor id (not your name), pages and products you view, searches, cart and checkout steps, and campaign tags from the link you followed. We do not store your IP address for this.</li>
 <li><strong>Reviews and alerts:</strong> review text and the email used for back-in-stock notices.</li>
 <li><strong>Technical:</strong> IP address, browser type, device, and cookies or similar storage needed for sessions, login, and checkout.</li>
 </ul>
@@ -266,6 +267,8 @@ function qr_store_legal_html_privacy( $ctx ) {
 <tr><td>Newsletter and marketing emails</td><td>Consent (double opt-in). You can unsubscribe at any time</td></tr>
 <tr><td>Product reviews and stock alerts you request</td><td>Consent and/or steps you ask us to take</td></tr>
 <tr><td>Keep the website secure and working (login, cart, checkout)</td><td>Legitimate interest in operating a secure store</td></tr>
+<tr><td>First-party analytics so we can see where shoppers drop off</td><td>Consent. Nothing is stored until you accept. You can decline or withdraw at any time</td></tr>
+<tr><td>Meta, TikTok, and Google advertising measurement</td><td>Consent (marketing cookies). These run only after you accept marketing</td></tr>
 </tbody>
 </table>
 <p>We do not sell personal information.</p>
@@ -276,18 +279,20 @@ function qr_store_legal_html_privacy( $ctx ) {
 <li><strong>Courier partners</strong> — name, phone, and delivery address so they can deliver your order.</li>
 <li><strong>Email delivery provider</strong> — to send account, order, newsletter, and support mail.</li>
 <li><strong>Hosting and security providers</strong> — to host the website and protect it.</li>
-<li><strong>Meta Platforms (Facebook / Instagram)</strong> — advertising measurement via the Meta Pixel, so we can understand which ads led to visits and purchases. Meta processes this information under its own terms and may process it outside South Africa.</li>
+<li><strong>Meta Platforms (Facebook / Instagram)</strong> — advertising measurement via the Meta Pixel, only if you accept marketing cookies. Meta processes this information under its own terms and may process it outside South Africa.</li>
+<li><strong>TikTok</strong> — advertising measurement via the TikTok Pixel and Events API, only if you accept marketing cookies. TikTok processes this information under its own terms and may process it outside South Africa.</li>
 <li><strong>Professional advisers or authorities</strong> — where the law requires it, or to protect our legal rights.</li>
 </ul>
 <p>These parties act as operators (processors) or, in PayFast’s case for payment data, as a responsible party for the information they collect to complete the payment. We require operators to use the information only for the agreed purpose.</p>
-<h2>6. Cookies and similar technologies</h2>
-<p>The Store uses cookies and similar storage that are required for it to work:</p>
+<h2 id="cookies">6. Cookies and similar technologies</h2>
+<p>Some cookies are required for the Store to work. These are not optional:</p>
 <ul>
 <li>session and cart cookies so items stay in your basket;</li>
 <li>account login and security cookies;</li>
 <li>checkout cookies so we can complete your order.</li>
 </ul>
-<p>We also use the <strong>Meta Pixel</strong> (Facebook / Instagram ads). It sets cookies and similar identifiers to measure visits, product views, add-to-cart, checkout starts, and purchases, and to help us show relevant ads. You can block third-party cookies in your browser; essential store functions such as cart and checkout may then fail, and ad measurement may be incomplete.</p>
+<p>If you choose <strong>Accept analytics</strong>, we set a first-party cookie with a random id and measure visits, product views, searches, add-to-cart, checkout starts, and orders, including campaign tags (for example Instagram or a reel) on the link you opened. We keep this detail for up to 13 months and then delete it. We do not store your IP address for analytics, and we do not use it to identify you. We link an email address only when you have already typed it at checkout or in a cart reminder. You can decline, and you can change your mind from Cookie &amp; privacy settings in the footer.</p>
+<p>If you also allow <strong>marketing</strong> cookies, we load the <strong>Meta Pixel</strong> (Facebook / Instagram), the <strong>TikTok Pixel</strong>, and <strong>Google Ads / Google for WooCommerce</strong> measurement tags where connected. They measure visits, product views, add-to-cart, checkout starts, and purchases, and they help us show ads. The Google Customer Reviews floating widget also loads only after marketing consent. If you decline, those tags do not run. A Global Privacy Control or Do Not Track signal is treated as a decline until you choose otherwise.</p>
 <h2>7. Marketing</h2>
 <p>We only send marketing newsletters after you confirm your email (double opt-in). Every newsletter includes an unsubscribe link. Transactional messages — order confirmation, shipping, password reset, return updates — are not marketing and are sent because they are part of the service.</p>
 <h2>8. How long we keep information</h2>
@@ -296,6 +301,8 @@ function qr_store_legal_html_privacy( $ctx ) {
 <li><strong>Accounts:</strong> while the account is open, and for a reasonable period afterwards if needed for records or disputes.</li>
 <li><strong>Newsletter:</strong> until you unsubscribe or we delete inactive lists.</li>
 <li><strong>Abandoned carts:</strong> for a limited period so we can send a reminder, then they are removed or anonymised.</li>
+<li><strong>Analytics events:</strong> up to 13 months, then deleted. Combined daily totals may be kept after that without a visitor id.</li>
+<li><strong>Consent choices:</strong> the choice and time, without your IP address, so we can show what was agreed.</li>
 <li><strong>Support mail:</strong> for as long as needed to resolve the query and keep a record of what was agreed.</li>
 </ul>
 <h2>9. Security</h2>
