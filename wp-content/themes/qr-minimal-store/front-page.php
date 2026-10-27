@@ -164,7 +164,7 @@ if ( $popular ) :
 <?php
 $feature = qr_minimal_store_home_feature_product();
 if ( $feature ) :
-	$video_id   = (string) $feature->get_meta( '_product_video_youtube' );
+	$video_id   = qr_minimal_store_youtube_id( $feature->get_meta( '_product_video_youtube' ) );
 	$video_html = qr_minimal_store_youtube_html(
 		$video_id,
 		/* translators: %s: product name */

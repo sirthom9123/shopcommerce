@@ -167,6 +167,10 @@ function qr_minimal_store_visible_in_stock_tax_query() {
  * @return string
  */
 function qr_minimal_store_department_url( $key, $slugs ) {
+	$url = apply_filters( 'qr_minimal_store_department_url', '', $key, $slugs );
+	if ( '' !== $url ) {
+		return $url;
+	}
 	$parent = get_term_by( 'slug', $key, 'product_cat' );
 	if ( $parent instanceof WP_Term ) {
 		$children = get_terms(
@@ -242,7 +246,7 @@ function qr_minimal_store_offer_lines() {
 		'rest'   => __( ' with Mobicred or RCS, subject to approval', 'qr-minimal-store' ),
 		'short'  => false,
 	);
-	return $lines;
+	return apply_filters( 'qr_minimal_store_offer_lines', $lines );
 }
 
 function qr_minimal_store_offer_bar() {
@@ -263,13 +267,27 @@ function qr_minimal_store_offer_bar() {
  * @param int $limit Max departments.
  */
 function qr_minimal_store_department_links( $limit = 7 ) {
-	$departments = array_slice( qr_minimal_store_available_departments(), 0, $limit, true );
-	foreach ( $departments as $department ) {
+	// Design order (board A): the six home departments, 3D Printing, then the rest.
+	$order       = array( 'smart-home', 'kitchen', 'wearables', 'pet-tech', 'grooming-wellness', 'computer-office', '3d-printing' );
+	$available   = qr_minimal_store_available_departments();
+	$departments = array();
+	foreach ( array_unique( array_merge( $order, array_keys( $available ) ) ) as $key ) {
+		if ( isset( $available[ $key ] ) ) {
+			$departments[ $key ] = $available[ $key ];
+		}
+	}
+	$current = function_exists( 'qr_minimal_store_current_department' ) ? qr_minimal_store_current_department() : null;
+	$index   = 0;
+	foreach ( $departments as $key => $department ) {
+		// Beyond the limit: only in the phone menu (and the footer, which passes a higher limit).
+		$extra = ++$index > $limit;
 		printf(
-			'<li><a href="%1$s">%2$s%3$s</a></li>',
+			'<li%5$s><a href="%1$s"%4$s>%2$s%3$s</a></li>',
 			esc_url( $department['url'] ),
 			esc_html( $department['title'] ),
-			$department['new'] ? ' <span class="qr-new-pill">' . esc_html__( 'New', 'qr-minimal-store' ) . '</span>' : ''
+			$department['new'] ? ' <span class="qr-new-pill">' . esc_html__( 'New', 'qr-minimal-store' ) . '</span>' : '',
+			$current && $current['key'] === $key ? ' aria-current="true"' : '',
+			$extra ? ' class="qr-depts__extra"' : ''
 		);
 	}
 }
@@ -492,15 +510,16 @@ function qr_minimal_store_credit_logos() {
  * @param int    $image_id Poster attachment ID.
  * @return string
  */
-function qr_minimal_store_youtube_html( $video_id, $title, $image_id = 0 ) {
+function qr_minimal_store_youtube_html( $video_id, $title, $image_id = 0, $ambient = false ) {
 	$video_id = preg_replace( '/[^A-Za-z0-9_-]/', '', (string) $video_id );
 	if ( 11 !== strlen( $video_id ) ) {
 		return '';
 	}
+	wp_enqueue_script( 'qr-minimal-store-video' );
 	$poster = $image_id ? wp_get_attachment_image( $image_id, 'large', false, array( 'class' => 'qr-video__poster', 'alt' => '', 'loading' => 'lazy' ) ) : '';
 	ob_start();
 	?>
-	<div class="qr-video" data-qr-youtube="<?php echo esc_attr( $video_id ); ?>" data-qr-title="<?php echo esc_attr( $title ); ?>">
+	<div class="qr-video<?php echo $ambient ? ' qr-video--ambient' : ''; ?>" data-qr-youtube="<?php echo esc_attr( $video_id ); ?>" data-qr-title="<?php echo esc_attr( $title ); ?>"<?php echo $ambient ? ' data-qr-ambient' : ''; ?>>
 		<?php echo $poster; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- attachment image HTML. ?>
 		<div class="qr-video__overlay">
 			<button type="button" class="qr-video__play" data-qr-video-play>
@@ -515,6 +534,9 @@ function qr_minimal_store_youtube_html( $video_id, $title, $image_id = 0 ) {
 			<p class="qr-video__title"><?php echo esc_html( $title ); ?></p>
 			<p class="qr-video__note"><?php esc_html_e( 'Plays from YouTube when you press play', 'qr-minimal-store' ); ?></p>
 		</div>
+		<?php if ( $ambient ) : ?>
+			<button type="button" class="qr-video__stop" data-qr-video-stop hidden><?php esc_html_e( 'Pause video', 'qr-minimal-store' ); ?></button>
+		<?php endif; ?>
 		<div class="qr-video__consent" hidden>
 			<p><?php esc_html_e( 'This video plays from YouTube, which uses marketing cookies. Allow marketing cookies to play it here, or watch it on YouTube.', 'qr-minimal-store' ); ?></p>
 			<div class="qr-video__actions">
@@ -665,20 +687,55 @@ function qr_minimal_store_local_video_url( $value ) {
  * @param WC_Product $product Product.
  */
 function qr_minimal_store_home_product_card( $product ) {
-	$url = $product->get_permalink();
+	qr_minimal_store_product_card( $product, array( 'spec' => true ) );
+}
+
+/**
+ * Product card used on the home page and in the shop grid (design boards A and E).
+ * In stock / backorder: stock line, name, price, Add to cart. Sold out (only listed when
+ * the shopper includes out-of-stock items): greyed image, "Out of stock", "View product".
+ *
+ * @param WC_Product $product Product.
+ * @param array      $args    spec: show the tagline line; free_tag: "Free delivery" next to the price.
+ */
+function qr_minimal_store_product_card( $product, $args = array() ) {
+	$args     = wp_parse_args(
+		$args,
+		array(
+			'spec'     => false,
+			'free_tag' => false,
+		)
+	);
+	$url      = $product->get_permalink();
+	$in_stock = $product->is_in_stock();
+	$rule     = $args['free_tag'] && function_exists( 'qr_minimal_store_free_delivery_rule' ) ? qr_minimal_store_free_delivery_rule() : null;
+	$free     = $rule && $in_stock && (float) wc_get_price_to_display( $product ) >= $rule['threshold'];
+	$more     = '';
+	if ( ! $in_stock ) {
+		$stock = __( 'Out of stock', 'qr-minimal-store' );
+	} elseif ( $product->is_on_backorder() ) {
+		$stock = __( 'Available on backorder', 'qr-minimal-store' );
+	} else {
+		$stock = __( 'In stock', 'qr-minimal-store' );
+		$more  = __( ' · delivery in 2–3 working days', 'qr-minimal-store' );
+	}
 	?>
-	<li class="qr-card">
+	<li class="qr-card product<?php echo $in_stock ? '' : ' is-sold-out'; ?>">
 		<a class="qr-card__img" href="<?php echo esc_url( $url ); ?>" tabindex="-1" aria-hidden="true">
 			<?php echo $product->get_image( 'woocommerce_thumbnail', array( 'alt' => $product->get_name(), 'loading' => 'lazy' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- WooCommerce image HTML. ?>
 		</a>
-		<p class="qr-card__stock"><?php echo $product->is_on_backorder() ? esc_html__( 'Available on backorder', 'qr-minimal-store' ) : esc_html__( 'In stock · delivery in 2–3 working days', 'qr-minimal-store' ); ?></p>
+		<p class="qr-card__stock"><?php echo esc_html( $stock ); ?><?php echo $more ? '<span class="qr-card__stock-more">' . esc_html( $more ) . '</span>' : ''; ?></p>
 		<h3 class="qr-card__name"><a href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $product->get_name() ); ?></a></h3>
-		<p class="qr-card__spec"><?php echo esc_html( qr_minimal_store_product_tagline( $product ) ); ?></p>
-		<p class="qr-card__price"><?php echo wp_kses_post( $product->get_price_html() ); ?></p>
-		<?php if ( $product->is_type( 'simple' ) && $product->supports( 'ajax_add_to_cart' ) ) : ?>
-			<a class="qr-card__add button add_to_cart_button ajax_add_to_cart" href="<?php echo esc_url( $product->add_to_cart_url() ); ?>" data-product_id="<?php echo esc_attr( (string) $product->get_id() ); ?>" data-quantity="1" data-product_sku="<?php echo esc_attr( $product->get_sku() ); ?>" aria-label="<?php echo esc_attr( $product->add_to_cart_description() ); ?>" rel="nofollow"><?php echo esc_html( $product->add_to_cart_text() ); ?></a>
+		<?php if ( $args['spec'] ) : ?>
+			<p class="qr-card__spec"><?php echo esc_html( qr_minimal_store_product_tagline( $product ) ); ?></p>
+		<?php endif; ?>
+		<p class="qr-card__price"><?php echo wp_kses_post( $product->get_price_html() ); ?><?php echo $free ? ' <span class="qr-card__free">' . esc_html__( 'Free delivery', 'qr-minimal-store' ) . '</span>' : ''; ?></p>
+		<?php if ( ! $in_stock || ! $product->is_purchasable() ) : ?>
+			<a class="qr-card__add qr-card__add--view button" href="<?php echo esc_url( $url ); ?>"><?php esc_html_e( 'View product', 'qr-minimal-store' ); ?><span class="screen-reader-text">: <?php echo esc_html( $product->get_name() ); ?></span></a>
+		<?php elseif ( $product->is_type( 'simple' ) && $product->supports( 'ajax_add_to_cart' ) ) : ?>
+			<a class="qr-card__add button add_to_cart_button ajax_add_to_cart" href="<?php echo esc_url( $product->add_to_cart_url() ); ?>" data-product_id="<?php echo esc_attr( (string) $product->get_id() ); ?>" data-quantity="1" data-product_sku="<?php echo esc_attr( $product->get_sku() ); ?>" aria-label="<?php echo esc_attr( $product->add_to_cart_description() ); ?>" rel="nofollow"><?php echo esc_html( $product->is_on_backorder() ? __( 'Backorder now', 'qr-minimal-store' ) : __( 'Add to cart', 'qr-minimal-store' ) ); ?></a>
 		<?php else : ?>
-			<a class="qr-card__add button" href="<?php echo esc_url( $url ); ?>"><?php esc_html_e( 'Choose options', 'qr-minimal-store' ); ?></a>
+			<a class="qr-card__add button" href="<?php echo esc_url( $url ); ?>"><?php esc_html_e( 'Choose options', 'qr-minimal-store' ); ?><span class="screen-reader-text">: <?php echo esc_html( $product->get_name() ); ?></span></a>
 		<?php endif; ?>
 	</li>
 	<?php
@@ -754,15 +811,6 @@ function qr_minimal_store_help_links() {
 	return $links;
 }
 
-add_action( 'wp_enqueue_scripts', 'qr_minimal_store_home_assets', 30 );
-function qr_minimal_store_home_assets() {
-	if ( ! is_front_page() ) {
-		return;
-	}
-	$file = get_template_directory() . '/assets/js/home.js';
-	wp_enqueue_script( 'qr-minimal-store-home', get_template_directory_uri() . '/assets/js/home.js', array(), file_exists( $file ) ? (string) filemtime( $file ) : wp_get_theme()->get( 'Version' ), true );
-}
-
 /* ---------- Customizer: Home page ---------- */
 
 add_action( 'customize_register', 'qr_minimal_store_home_customizer', 20 );
@@ -817,6 +865,30 @@ function qr_minimal_store_home_product_fields() {
 	);
 	woocommerce_wp_text_input(
 		array(
+			'id'          => '_product_video_youtube',
+			'label'       => __( 'YouTube video (official)', 'qr-minimal-store' ),
+			'description' => __( 'YouTube link or video ID of the official manufacturer video. Shown under "See it in action"; loads only after the shopper allows marketing cookies.', 'qr-minimal-store' ),
+			'desc_tip'    => true,
+		)
+	);
+	woocommerce_wp_text_input(
+		array(
+			'id'          => '_qr_card_label',
+			'label'       => __( 'Card label (3D Printing page)', 'qr-minimal-store' ),
+			'description' => __( 'Short label above the name on printer cards, e.g. "FDM · up to 16 colours".', 'qr-minimal-store' ),
+			'desc_tip'    => true,
+		)
+	);
+	woocommerce_wp_text_input(
+		array(
+			'id'          => '_qr_price_unit',
+			'label'       => __( 'Price unit', 'qr-minimal-store' ),
+			'description' => __( 'Shown after the price on material cards, e.g. "per 1 kg spool" or "per bottle".', 'qr-minimal-store' ),
+			'desc_tip'    => true,
+		)
+	);
+	woocommerce_wp_text_input(
+		array(
 			'id'          => '_qr_reel_video',
 			'label'       => __( 'Home page reel (video)', 'qr-minimal-store' ),
 			'description' => __( 'Media library ID or URL of an MP4 uploaded to this store (9:16). Shown under "See them in action".', 'qr-minimal-store' ),
@@ -852,10 +924,13 @@ add_action( 'woocommerce_admin_process_product_object', 'qr_minimal_store_save_h
 function qr_minimal_store_save_home_product_fields( $product ) {
 	// Nonce and capability are checked by WooCommerce before this action runs.
 	// phpcs:disable WordPress.Security.NonceVerification.Missing
-	foreach ( array( '_qr_tagline', '_qr_reel_video', '_qr_reel_hook' ) as $key ) {
+	foreach ( array( '_qr_tagline', '_qr_reel_video', '_qr_reel_hook', '_qr_card_label', '_qr_price_unit' ) as $key ) {
 		if ( isset( $_POST[ $key ] ) ) {
 			$product->update_meta_data( $key, sanitize_text_field( wp_unslash( $_POST[ $key ] ) ) );
 		}
+	}
+	if ( isset( $_POST['_product_video_youtube'] ) && function_exists( 'qr_minimal_store_youtube_id' ) ) {
+		$product->update_meta_data( '_product_video_youtube', qr_minimal_store_youtube_id( wp_unslash( $_POST['_product_video_youtube'] ) ) );
 	}
 	if ( isset( $_POST['_qr_reel_link'] ) ) {
 		$post = qr_minimal_store_social_post( wp_unslash( $_POST['_qr_reel_link'] ) );
