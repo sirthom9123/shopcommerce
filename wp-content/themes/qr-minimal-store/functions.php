@@ -24,6 +24,7 @@ add_action( 'init', function() {
 
 require_once get_template_directory() . '/inc/cart-checkout.php';
 require_once get_template_directory() . '/inc/product-page.php';
+require_once get_template_directory() . '/inc/home.php';
 
 add_action( 'after_setup_theme', 'qr_minimal_store_setup' );
 function qr_minimal_store_setup() {
@@ -617,29 +618,6 @@ function qr_minimal_store_enqueue_assets() {
 		true
 	);
 
-	if ( is_front_page() ) {
-		$js_file = get_template_directory() . '/assets/js/product-tabs.js';
-		$js_ver  = file_exists( $js_file ) ? (string) filemtime( $js_file ) : wp_get_theme()->get( 'Version' );
-
-		wp_enqueue_script(
-			'qr-minimal-store-product-tabs',
-			get_template_directory_uri() . '/assets/js/product-tabs.js',
-			array(),
-			$js_ver,
-			true
-		);
-
-		$deal_js  = get_template_directory() . '/assets/js/deal-countdown.js';
-		$deal_ver = file_exists( $deal_js ) ? (string) filemtime( $deal_js ) : wp_get_theme()->get( 'Version' );
-		wp_enqueue_script(
-			'qr-minimal-store-deal-countdown',
-			get_template_directory_uri() . '/assets/js/deal-countdown.js',
-			array(),
-			$deal_ver,
-			true
-		);
-	}
-
 	if ( is_page_template( 'page-spring-bonanza.php' ) ) {
 		$bonanza_css     = get_template_directory() . '/assets/css/spring-bonanza.css';
 		$bonanza_css_ver = file_exists( $bonanza_css ) ? (string) filemtime( $bonanza_css ) : wp_get_theme()->get( 'Version' );
@@ -927,54 +905,6 @@ function qr_minimal_store_product_search_bar() {
 		<input type="hidden" name="post_type" value="product">
 	</form>
 	<?php
-}
-
-add_action( 'customize_register', 'qr_minimal_store_customizer' );
-function qr_minimal_store_customizer( $wp_customize ) {
-	$wp_customize->add_section(
-		'qr_hero_section',
-		array(
-			'title'    => __( 'Hero Banner', 'qr-minimal-store' ),
-			'priority' => 30,
-		)
-	);
-
-	$wp_customize->add_setting(
-		'qr_hero_image',
-		array(
-			'default'           => 0,
-			'sanitize_callback' => 'absint',
-		)
-	);
-
-	$wp_customize->add_control(
-		new WP_Customize_Media_Control(
-			$wp_customize,
-			'qr_hero_image',
-			array(
-				'label'     => __( 'Hero Product Image', 'qr-minimal-store' ),
-				'section'   => 'qr_hero_section',
-				'mime_type' => 'image',
-			)
-		)
-	);
-
-	$wp_customize->add_setting(
-		'qr_deal_product',
-		array(
-			'default'           => 0,
-			'sanitize_callback' => 'absint',
-		)
-	);
-
-	$wp_customize->add_control(
-		'qr_deal_product',
-		array(
-			'label'   => __( 'Deal of the Day — Product ID', 'qr-minimal-store' ),
-			'section' => 'qr_hero_section',
-			'type'    => 'number',
-		)
-	);
 }
 
 add_action( 'wp_footer', 'qr_minimal_store_sticky_add_to_cart' );

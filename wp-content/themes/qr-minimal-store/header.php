@@ -20,63 +20,32 @@ if ( ! defined( 'ABSPATH' ) ) {
 	</div>
 </header>
 <?php else : ?>
-<header class="site-header">
-	<div class="site-header__utility">
-		<div class="container utility-row">
-			<p><?php esc_html_e( 'Welcome to Yehuda Store', 'qr-minimal-store' ); ?></p>
-			<nav class="utility-nav" aria-label="<?php esc_attr_e( 'Utility navigation', 'qr-minimal-store' ); ?>">
-				<a href="<?php echo esc_url( home_url( '/shop/' ) ); ?>"><?php esc_html_e( 'Shop', 'qr-minimal-store' ); ?></a>
-				<?php
-				$account_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : home_url( '/my-account/' );
-				if ( is_user_logged_in() ) :
-					?>
-					<a href="<?php echo esc_url( $account_url ); ?>"><?php esc_html_e( 'My Account', 'qr-minimal-store' ); ?></a>
-					<a href="<?php echo esc_url( wp_logout_url( home_url( '/' ) ) ); ?>"><?php esc_html_e( 'Sign Out', 'qr-minimal-store' ); ?></a>
-				<?php else : ?>
-					<a href="<?php echo esc_url( $account_url ); ?>"><?php esc_html_e( 'Sign In', 'qr-minimal-store' ); ?></a>
-					<a href="<?php echo esc_url( add_query_arg( 'register', '1', $account_url ) ); ?>"><?php esc_html_e( 'Sign Up', 'qr-minimal-store' ); ?></a>
-				<?php endif; ?>
-			</nav>
-		</div>
-	</div>
-	<div class="header-main">
-		<?php qr_minimal_store_the_brand( 'header' ); ?>
-		<button class="nav-toggle" aria-expanded="false" aria-controls="primary-nav" aria-label="<?php esc_attr_e( 'Toggle menu', 'qr-minimal-store' ); ?>">
-			<span class="nav-toggle__bar"></span>
-			<span class="nav-toggle__bar"></span>
-			<span class="nav-toggle__bar"></span>
+<header class="site-header site-header--main">
+	<?php qr_minimal_store_offer_bar(); ?>
+	<div class="container qr-hdr">
+		<button class="nav-toggle qr-hdr__toggle" aria-expanded="false" aria-controls="primary-nav">
+			<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+			<span class="screen-reader-text"><?php esc_html_e( 'Menu', 'qr-minimal-store' ); ?></span>
 		</button>
-		<nav id="primary-nav" class="header-main__navigation" aria-label="<?php esc_attr_e( 'Primary navigation', 'qr-minimal-store' ); ?>">
-			<?php
-			wp_nav_menu(
-				array(
-					'theme_location' => 'primary',
-					'container'      => false,
-					'fallback_cb'    => 'qr_minimal_store_primary_menu_fallback',
-					'menu_class'     => 'site-nav__menu',
-				)
-			);
-			?>
-		</nav>
-		<div class="header-search"><?php qr_minimal_store_product_search_bar(); ?></div>
-		<div class="header-actions">
+		<?php qr_minimal_store_the_brand( 'header' ); ?>
+		<?php qr_minimal_store_header_search(); ?>
+		<nav class="qr-hdr__account" aria-label="<?php esc_attr_e( 'Account', 'qr-minimal-store' ); ?>">
 			<?php $account_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : home_url( '/my-account/' ); ?>
-			<a class="header-action" href="<?php echo esc_url( $account_url ); ?>">
-				<span aria-hidden="true">♡</span><span class="header-action__label"><?php echo is_user_logged_in() ? esc_html__( 'Account', 'qr-minimal-store' ) : esc_html__( 'Sign In', 'qr-minimal-store' ); ?></span>
+			<a class="qr-hdr__signin" href="<?php echo esc_url( $account_url ); ?>"><?php echo is_user_logged_in() ? esc_html__( 'Account', 'qr-minimal-store' ) : esc_html__( 'Sign in', 'qr-minimal-store' ); ?></a>
+			<a class="qr-hdr__cart cart-link" href="<?php echo esc_url( function_exists( 'wc_get_cart_url' ) ? wc_get_cart_url() : home_url( '/cart/' ) ); ?>">
+				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 4h2l2.4 11.2a1.5 1.5 0 0 0 1.5 1.2h8.6a1.5 1.5 0 0 0 1.5-1.1L21 8H6"/><circle cx="9.5" cy="20" r="1.2"/><circle cx="17" cy="20" r="1.2"/></svg>
+				<span class="qr-hdr__cart-label"><?php esc_html_e( 'Cart', 'qr-minimal-store' ); ?></span>
+				<span class="cart-count"><?php echo esc_html( ( function_exists( 'WC' ) && WC()->cart ) ? (string) WC()->cart->get_cart_contents_count() : '0' ); ?></span>
+				<span class="screen-reader-text"><?php esc_html_e( 'items', 'qr-minimal-store' ); ?></span>
 			</a>
-			<a class="header-action cart-link" href="<?php echo esc_url( function_exists( 'wc_get_cart_url' ) ? wc_get_cart_url() : home_url( '/cart/' ) ); ?>">
-				<span aria-hidden="true">🛒</span><span class="header-action__label"><?php esc_html_e( 'Cart', 'qr-minimal-store' ); ?></span>
-				<?php if ( function_exists( 'WC' ) && WC()->cart ) : ?>
-					<span class="cart-count"><?php echo esc_html( (string) WC()->cart->get_cart_contents_count() ); ?></span>
-				<?php endif; ?>
-			</a>
-		</div>
+		</nav>
 	</div>
-	<nav class="site-header__category-strip" aria-label="<?php esc_attr_e( 'Product categories', 'qr-minimal-store' ); ?>">
-		<div class="container category-navigation">
-			<strong><?php esc_html_e( 'Browse Categories', 'qr-minimal-store' ); ?></strong>
-			<?php qr_minimal_store_render_category_links( 8, array( 'security-camera', 'bags-accessories', 'ups' ) ); ?>
-		</div>
+	<nav id="primary-nav" class="qr-depts" aria-label="<?php esc_attr_e( 'Departments', 'qr-minimal-store' ); ?>">
+		<ul class="container qr-depts__list">
+			<?php qr_minimal_store_department_links( 7 ); ?>
+			<li class="qr-depts__more"><a href="<?php echo esc_url( function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/shop/' ) ); ?>"><?php esc_html_e( 'Shop all products', 'qr-minimal-store' ); ?></a></li>
+			<li class="qr-depts__more"><a href="<?php echo esc_url( $account_url ); ?>"><?php echo is_user_logged_in() ? esc_html__( 'My account', 'qr-minimal-store' ) : esc_html__( 'Sign in or create an account', 'qr-minimal-store' ); ?></a></li>
+		</ul>
 	</nav>
 </header>
 <?php endif; ?>
