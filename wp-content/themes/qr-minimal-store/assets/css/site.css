@@ -6739,3 +6739,912 @@ a.qr-section__link {
     padding-bottom: 3rem;
   }
 }
+
+/* ==========================================================================
+   Account pages (design board E)
+   ========================================================================== */
+
+.qr-account-page {
+  padding-block: 2.5rem 4rem;
+}
+
+/* Reset the old account wrapper card and grid */
+.woocommerce-account .qr-account-page .woocommerce {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.qr-account-page button.qr-btn {
+  font-family: inherit;
+  letter-spacing: normal;
+  cursor: pointer;
+}
+
+.qr-btn--block {
+  width: 100%;
+}
+
+.qr-btn--sm {
+  min-height: 44px;
+  padding: 0 1.15rem;
+  font-size: 0.9375rem;
+}
+
+.qr-btn--text {
+  border-color: transparent;
+  background: transparent;
+  color: var(--qr-primary);
+}
+
+.qr-btn--text:hover,
+.qr-btn--text:focus-visible {
+  border-color: transparent;
+  background: var(--qr-primary-soft);
+  color: var(--qr-primary);
+}
+
+.qr-btn--outline:hover,
+.qr-btn--outline:focus-visible {
+  background: var(--qr-primary-soft);
+  color: var(--qr-primary);
+}
+
+/* Fields: same look as checkout */
+.qr-account-page .form-row {
+  margin: 0 0 1rem;
+}
+
+.qr-account-page .form-row label,
+.qr-account-page .qr-form__label-row label {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: var(--qr-text);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.qr-account-page input.input-text,
+.qr-account-page input[type="text"],
+.qr-account-page input[type="email"],
+.qr-account-page input[type="password"],
+.qr-account-page input[type="tel"],
+.qr-account-page select,
+.qr-account-page textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 50px;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid #c7c7cc;
+  border-radius: 12px;
+  background: #ffffff;
+  color: var(--qr-text);
+  font: inherit;
+  font-size: 1rem;
+}
+
+.qr-account-page input:focus-visible,
+.qr-account-page select:focus-visible,
+.qr-account-page textarea:focus-visible {
+  border-color: var(--qr-primary);
+  outline: 2px solid var(--qr-primary-soft);
+  outline-offset: 0;
+}
+
+.qr-form__label-row {
+  display: flex;
+  gap: 1rem;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.qr-form__label-row a {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.qr-form__check {
+  display: inline-flex !important;
+  gap: 0.6rem;
+  align-items: center;
+  min-height: 44px;
+  margin: 0 !important;
+  color: #424245 !important;
+  font-size: 0.9375rem;
+  font-weight: 500 !important;
+}
+
+.qr-form__check input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+}
+
+/* ---------- Signed out ---------- */
+
+.qr-auth {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 3rem;
+  align-items: start;
+  padding: 2.75rem 3rem;
+  border: 1px solid #e3e3e8;
+  border-radius: 20px;
+}
+
+.qr-auth__title {
+  margin: 0;
+  font-size: 2.125rem;
+  letter-spacing: -0.02em;
+}
+
+.qr-auth__lead {
+  margin: 0.5rem 0 1.5rem;
+  color: #424245;
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.qr-auth__switch {
+  margin: 0.25rem 0 0;
+  color: #424245;
+  font-size: 0.9375rem;
+}
+
+.qr-auth__switch a {
+  font-weight: 600;
+}
+
+.qr-auth__track {
+  padding: 1.75rem;
+  border-radius: 18px;
+  background: var(--qr-surface);
+}
+
+.qr-auth__track h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  letter-spacing: -0.01em;
+}
+
+.qr-auth__track > p {
+  margin: 0.5rem 0 1.25rem;
+  color: #424245;
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.qr-auth__track .qr-auth__help {
+  margin: 1rem 0 0;
+  color: #636366;
+  font-size: 0.8125rem;
+}
+
+.qr-auth__error {
+  padding: 0.75rem 0.9rem;
+  border-radius: 12px;
+  background: #fdecec;
+  color: #8a1c1c !important;
+  font-weight: 500;
+}
+
+/* ---------- Signed in: menu + content ---------- */
+
+.qr-acct {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.qr-acct--detail {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.qr-acct .qr-acct__content {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.qr-acct__title {
+  margin: 0 0 1.25rem;
+  font-size: 2rem;
+  letter-spacing: -0.02em;
+}
+
+.qr-acct-nav {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.qr-acct-nav__hi {
+  margin: 0;
+  padding: 0 0.9rem 0.6rem;
+  color: #636366;
+  font-size: 0.8125rem;
+}
+
+.qr-acct-nav ul {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.qr-acct-nav li + li {
+  border: 0;
+}
+
+.qr-acct-nav a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 0.9rem;
+  border-radius: 12px;
+  color: var(--qr-text);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.qr-acct-nav a:hover {
+  background: var(--qr-surface);
+  color: var(--qr-text);
+}
+
+.qr-acct-nav a[aria-current="page"] {
+  background: #eaf3fe;
+  color: #0059b3;
+}
+
+.qr-acct-nav__short {
+  display: none;
+}
+
+/* Pills */
+.qr-pill {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: var(--qr-radius-pill);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  vertical-align: middle;
+}
+
+.qr-pill--done {
+  background: #e8f5ec;
+  color: #1f5c30;
+}
+
+.qr-pill--active {
+  background: #eaf3fe;
+  color: #0059b3;
+}
+
+.qr-pill--wait {
+  background: #fdf1e2;
+  color: #8a4b00;
+}
+
+.qr-pill--closed {
+  background: #f2f2f4;
+  color: #55555a;
+}
+
+/* Order cards */
+.qr-orders {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.qr-orders__card {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.1rem;
+  align-items: center;
+  padding: 1.1rem 1.25rem;
+  border: 1px solid #e3e3e8;
+  border-radius: 16px;
+}
+
+.qr-orders__thumb,
+.qr-order__thumb {
+  display: grid;
+  flex: 0 0 64px;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--qr-surface);
+}
+
+.qr-orders__thumb img,
+.qr-order__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
+
+.qr-orders__body {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+.qr-orders__body p {
+  margin: 0;
+}
+
+.qr-orders__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.qr-orders__no {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.qr-orders__items {
+  margin-top: 0.3rem !important;
+  overflow: hidden;
+  color: #424245;
+  font-size: 0.9375rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.qr-orders__meta {
+  margin-top: 0.15rem !important;
+  color: #636366;
+  font-size: 0.875rem;
+}
+
+.qr-orders__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.qr-orders__pages {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.qr-orders__empty {
+  padding: 2rem;
+  border-radius: 16px;
+  background: var(--qr-surface);
+  text-align: center;
+}
+
+.qr-orders__empty p {
+  margin: 0 0 1rem;
+  font-weight: 600;
+}
+
+/* "Find my past guest orders" (WooCommerce) as one note under the list */
+.qr-acct__guest {
+  margin-top: 1.5rem;
+}
+
+.qr-acct__guest:empty {
+  display: none;
+}
+
+.qr-acct__guest .woocommerce-info,
+.qr-acct__guest .woocommerce-message,
+.qr-acct__guest .woocommerce-error {
+  display: flex;
+  flex-wrap: wrap-reverse;
+  gap: 0.75rem 1rem;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0;
+  padding: 1.1rem 1.35rem;
+  border: 0;
+  border-radius: 16px;
+  background: var(--qr-surface);
+  color: #424245;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.qr-acct__guest .woocommerce-info::before,
+.qr-acct__guest .woocommerce-message::before {
+  display: none;
+}
+
+.qr-acct__guest .button {
+  float: none;
+  order: 2;
+  min-height: 44px;
+  padding: 0 1.1rem;
+  border: 1.5px solid var(--qr-primary);
+  border-radius: var(--qr-radius-pill);
+  background: #ffffff;
+  color: var(--qr-primary);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: none;
+}
+
+/* ---------- Order detail (also Track an order) ---------- */
+
+.qr-order {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.qr-order__back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.qr-order__title {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin: 0.25rem 0 0;
+  font-size: 2rem;
+  letter-spacing: -0.02em;
+}
+
+.qr-order__meta {
+  margin: 0.3rem 0 0;
+  color: #636366;
+  font-size: 0.875rem;
+}
+
+.qr-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin: 1.6rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.qr-steps__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.qr-steps__bar {
+  height: 6px;
+  border-radius: var(--qr-radius-pill);
+  background: #e3e3e8;
+}
+
+.qr-steps__item.is-done .qr-steps__bar {
+  background: #0071e3;
+}
+
+.qr-steps__label {
+  color: #636366;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.qr-steps__item.is-done .qr-steps__label {
+  color: var(--qr-text);
+}
+
+.qr-steps__sub {
+  color: #636366;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.qr-order__status {
+  margin-top: 1.5rem;
+  padding: 1.1rem 1.35rem;
+  border-radius: 16px;
+  background: var(--qr-surface);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+
+.qr-order__status p {
+  margin: 0;
+}
+
+.qr-order__status .qr-btn {
+  margin-top: 0.9rem;
+}
+
+.qr-order__tracking {
+  margin-top: 0.4rem !important;
+  font-weight: 600;
+}
+
+.qr-order__items {
+  margin: 1.5rem 0 0;
+  padding: 0;
+  border-top: 1px solid #e3e3e8;
+  list-style: none;
+}
+
+.qr-order__item {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  padding: 1.1rem 0;
+  border-bottom: 1px solid #e3e3e8;
+}
+
+.qr-order__item .qr-order__thumb {
+  flex-basis: 72px;
+  width: 72px;
+  height: 72px;
+}
+
+.qr-order__item-text {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.qr-order__item-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.qr-order__item-name a {
+  color: var(--qr-text);
+}
+
+.qr-order__item-qty {
+  color: #636366;
+  font-size: 0.875rem;
+}
+
+.qr-order__item-price {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.qr-order__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.4rem;
+}
+
+.qr-order__note {
+  margin: 0.6rem 0 0;
+  color: #636366;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.qr-order__updates {
+  margin-top: 1.5rem;
+}
+
+.qr-order__updates h2 {
+  margin: 0 0 0.6rem;
+  font-size: 1.125rem;
+}
+
+.qr-order__updates ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.qr-order__updates li {
+  padding: 0.75rem 0;
+  border-top: 1px solid #e3e3e8;
+  font-size: 0.9375rem;
+}
+
+.qr-order__updates li p {
+  margin: 0.2rem 0 0;
+}
+
+.qr-order__update-date {
+  color: #636366;
+  font-size: 0.8125rem;
+}
+
+.qr-order__aside {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.4rem;
+  border-radius: 18px;
+  background: var(--qr-surface);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.qr-order__aside-title {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.qr-order__aside address {
+  margin-top: 0.25rem;
+  color: #424245;
+  font-style: normal;
+}
+
+.qr-order__totals {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  padding-top: 0.9rem;
+  border-top: 1px solid #e3e3e8;
+}
+
+.qr-order__totals div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.qr-order__totals dt,
+.qr-order__totals dd {
+  margin: 0;
+}
+
+.qr-order__totals .qr-order__total {
+  padding-top: 0.6rem;
+  border-top: 1px solid #d2d2d7;
+  font-size: 1.0625rem;
+  font-weight: 800;
+}
+
+.qr-order__vat,
+.qr-order__help {
+  margin: 0;
+  color: #636366;
+  font-size: 0.75rem;
+}
+
+.qr-order__help {
+  font-size: 0.8125rem;
+}
+
+@media (max-width: 900px) {
+  .qr-account-page {
+    padding-block: 1.25rem 3rem;
+  }
+
+  .qr-auth {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.75rem;
+    padding: 0;
+    border: 0;
+  }
+
+  .qr-auth__title {
+    font-size: 1.75rem;
+  }
+
+  .qr-auth__track {
+    padding: 1.4rem;
+  }
+
+  .qr-acct {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+  }
+
+  .qr-acct-nav__hi {
+    display: none;
+  }
+
+  .qr-acct-nav ul {
+    flex-direction: row;
+    gap: 0.5rem;
+    margin-inline: calc(-1 * var(--qr-gutter, 16px));
+    padding: 0 var(--qr-gutter, 16px) 0.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .qr-acct-nav ul::-webkit-scrollbar {
+    display: none;
+  }
+
+  .qr-acct-nav li {
+    flex: 0 0 auto;
+  }
+
+  .qr-acct-nav a {
+    padding: 0 1rem;
+    border: 1px solid #e3e3e8;
+    border-radius: var(--qr-radius-pill);
+    font-size: 0.875rem;
+    white-space: nowrap;
+  }
+
+  .qr-acct-nav a[aria-current="page"] {
+    border-color: #eaf3fe;
+  }
+
+  .qr-acct-nav__long {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .qr-acct-nav__short {
+    display: inline;
+  }
+
+  .qr-acct__title,
+  .qr-order__title {
+    font-size: 1.6rem;
+  }
+
+  .qr-orders__card {
+    gap: 0.9rem;
+    padding: 1rem;
+  }
+
+  .qr-orders__thumb {
+    flex-basis: 56px;
+    width: 56px;
+    height: 56px;
+  }
+
+  .qr-orders__body {
+    flex-basis: calc(100% - 72px);
+  }
+
+  .qr-orders__items {
+    white-space: normal;
+  }
+
+  .qr-orders__actions {
+    width: 100%;
+  }
+
+  .qr-orders__actions .qr-btn {
+    flex: 1 1 auto;
+  }
+
+  .qr-order {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.75rem;
+  }
+
+  .qr-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 1rem;
+  }
+
+  .qr-order__item .qr-order__thumb {
+    flex-basis: 56px;
+    width: 56px;
+    height: 56px;
+  }
+
+  .qr-order__actions .qr-btn {
+    flex: 1 1 auto;
+  }
+}
+
+/* Account: override the pre-redesign WooCommerce account styles */
+.woocommerce .qr-account-page form.qr-form,
+.qr-account-page form.qr-form {
+  margin: 0 0 1rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.woocommerce-account .qr-account-page .qr-acct-nav {
+  float: none;
+  width: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.woocommerce-account .qr-account-page .qr-acct-nav li,
+.woocommerce-account .qr-account-page .qr-acct-nav li + li {
+  margin: 0;
+  border: 0;
+}
+
+.woocommerce-account .qr-account-page .qr-acct__content {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.woocommerce .qr-acct__guest a.button,
+.qr-acct__guest a.button {
+  background: #ffffff;
+  color: var(--qr-primary);
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.woocommerce .qr-acct__guest a.button:hover,
+.qr-acct__guest a.button:hover {
+  background: var(--qr-primary-soft);
+  color: var(--qr-primary);
+}
+
+.qr-account-page .woocommerce-Address-title a,
+.qr-account-page .woocommerce-Address-title .edit {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .woocommerce-account .qr-account-page .qr-acct-nav a {
+    border: 1px solid #e3e3e8;
+    border-radius: var(--qr-radius-pill);
+  }
+
+  .woocommerce-account .qr-account-page .qr-acct-nav a[aria-current="page"] {
+    border-color: #eaf3fe;
+  }
+}
+
+/* Lost / reset password */
+.qr-account-page .woocommerce-ResetPassword,
+.qr-account-page .woocommerce-ResetPassword.lost_reset_password {
+  max-width: 520px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.qr-account-page .woocommerce-ResetPassword p:first-child {
+  margin: 0.5rem 0 1.5rem;
+  color: #424245;
+  line-height: 1.55;
+}
+
+.qr-account-page .woocommerce-ResetPassword .form-row-first,
+.qr-account-page .woocommerce-ResetPassword .form-row-last {
+  float: none;
+  width: 100%;
+}
+
+.woocommerce .qr-account-page .woocommerce-ResetPassword button.button {
+  min-height: 52px;
+  padding: 0 1.75rem;
+  border-radius: var(--qr-radius-pill);
+  font-size: 1rem;
+  letter-spacing: normal;
+  text-transform: none;
+}
