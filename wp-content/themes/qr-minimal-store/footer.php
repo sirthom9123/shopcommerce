@@ -4,6 +4,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 </main>
+<?php if ( qr_minimal_store_is_checkout_flow() ) : ?>
+<footer class="site-footer site-footer--checkout">
+	<div class="container site-footer__legal">
+		<ul class="footer-nav footer-nav--inline">
+			<?php foreach ( qr_minimal_store_legal_pages() as $legal_page ) : ?>
+			<li><a href="<?php echo esc_url( $legal_page['url'] ); ?>"><?php echo esc_html( $legal_page['title'] ); ?></a></li>
+			<?php endforeach; ?>
+			<li><button type="button" class="qr-consent-open" id="qr-consent-settings"><?php esc_html_e( 'Cookie & privacy settings', 'qr-minimal-store' ); ?></button></li>
+		</ul>
+		<?php
+		if ( function_exists( 'qr_payment_badges_strip' ) ) {
+			qr_payment_badges_strip();
+		}
+		?>
+	</div>
+</footer>
+<?php else : ?>
 <section class="newsletter-bar">
 	<div class="container newsletter-bar__grid">
 		<div class="newsletter-bar__content">
@@ -78,10 +95,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 		if ( function_exists( 'qr_payment_badges_strip' ) ) {
 			qr_payment_badges_strip();
 		}
-		qr_minimal_store_google_reviews_badge();
+		if ( qr_minimal_store_show_rating_badge() ) {
+			qr_minimal_store_google_reviews_badge();
+		}
 		?>
 	</div>
 </footer>
+<?php endif; ?>
 <?php wp_footer(); ?>
 </body>
 </html>

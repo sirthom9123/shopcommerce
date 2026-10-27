@@ -22,6 +22,9 @@ add_action( 'init', function() {
 	}
 } );
 
+require_once get_template_directory() . '/inc/cart-checkout.php';
+require_once get_template_directory() . '/inc/product-page.php';
+
 add_action( 'after_setup_theme', 'qr_minimal_store_setup' );
 function qr_minimal_store_setup() {
 	add_theme_support( 'title-tag' );
@@ -981,18 +984,26 @@ function qr_minimal_store_sticky_add_to_cart() {
 	}
 
 	global $product;
-	if ( ! $product || ! is_a( $product, 'WC_Product' ) ) {
+	if ( ! $product || ! is_a( $product, 'WC_Product' ) || ! $product->is_purchasable() || ! $product->is_in_stock() ) {
 		return;
+	}
+	$rule     = qr_minimal_store_free_delivery_rule();
+	$delivery = '';
+	if ( $rule ) {
+		$delivery = (float) wc_get_price_to_display( $product ) >= $rule['threshold']
+			? __( 'Free delivery', 'qr-minimal-store' )
+			/* translators: %s: delivery fee */
+			: sprintf( __( 'Delivery %s', 'qr-minimal-store' ), wp_strip_all_tags( wc_price( $rule['fee'], array( 'decimals' => 0 ) ) ) );
 	}
 	?>
 	<div class="sticky-add-to-cart" id="sticky-atc" hidden>
 		<div class="container sticky-add-to-cart__inner">
 			<div class="sticky-add-to-cart__info">
-				<strong><?php echo esc_html( $product->get_name() ); ?></strong>
+				<small><?php echo esc_html( $delivery ); ?></small>
 				<span><?php echo $product->get_price_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- WooCommerce price HTML. ?></span>
 			</div>
 			<a class="button" href="#product-<?php echo esc_attr( (string) $product->get_id() ); ?>">
-				<?php esc_html_e( 'Add to Cart', 'qr-minimal-store' ); ?>
+				<?php echo esc_html( $product->single_add_to_cart_text() ); ?>
 			</a>
 		</div>
 	</div>
@@ -1012,79 +1023,9 @@ function qr_minimal_store_sticky_add_to_cart() {
 
 function qr_minimal_store_trust_icon_svg( $name ) {
 	$icons = array(
-		'lock'   => '<svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" focusable="false"><rect x="5" y="11" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
-		'truck'  => '<svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" focusable="false"><path d="M3 7h11v10H3zM14 10h4l3 3v4h-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="7" cy="18" r="1.7" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="17.5" cy="18" r="1.7" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>',
-		'return' => '<svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" focusable="false"><path d="M7 7H4v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 10a7 7 0 1 0 2-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
-		'pay'    => '<svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" focusable="false"><rect x="3" y="6" width="18" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 10h18" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M7 15h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+		'lock' => '<svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" focusable="false"><rect x="5" y="11" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
 	);
 	return isset( $icons[ $name ] ) ? $icons[ $name ] : '';
-}
-
-function qr_minimal_store_render_checkout_trust() {
-	static $rendered = false;
-	if ( $rendered ) {
-		return;
-	}
-	if ( function_exists( 'is_order_received_page' ) && is_order_received_page() ) {
-		return;
-	}
-	if ( function_exists( 'is_wc_endpoint_url' ) && is_wc_endpoint_url( 'order-pay' ) ) {
-		return;
-	}
-	$rendered = true;
-	$items    = array(
-		array(
-			'icon'  => 'lock',
-			'title' => __( 'Secure transactions', 'qr-minimal-store' ),
-			'text'  => __( 'Encrypted checkout with PayFast.', 'qr-minimal-store' ),
-		),
-		array(
-			'icon'  => 'pay',
-			'title' => __( 'Protected payments', 'qr-minimal-store' ),
-			'text'  => __( 'Card, EFT, Mobicred and store cards (RCS), subject to approval.', 'qr-minimal-store' ),
-		),
-		array(
-			'icon'  => 'truck',
-			'title' => __( 'Reliable delivery', 'qr-minimal-store' ),
-			'text'  => __( 'Tracked shipping across South Africa.', 'qr-minimal-store' ),
-		),
-		array(
-			'icon'  => 'return',
-			'title' => __( 'Easy returns', 'qr-minimal-store' ),
-			'text'  => __( '30-day returns on unused items.', 'qr-minimal-store' ),
-		),
-	);
-	?>
-	<section class="qr-checkout-trust" aria-label="<?php esc_attr_e( 'Checkout assurances', 'qr-minimal-store' ); ?>">
-		<ul class="qr-checkout-trust__list">
-			<?php foreach ( $items as $item ) : ?>
-				<li>
-					<span class="qr-checkout-trust__icon"><?php echo qr_minimal_store_trust_icon_svg( $item['icon'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- inline SVG. ?></span>
-					<span>
-						<strong><?php echo esc_html( $item['title'] ); ?></strong>
-						<small><?php echo esc_html( $item['text'] ); ?></small>
-					</span>
-				</li>
-			<?php endforeach; ?>
-		</ul>
-	</section>
-	<?php
-}
-
-add_action( 'woocommerce_before_cart', 'qr_minimal_store_render_checkout_trust', 5 );
-add_action( 'woocommerce_before_checkout_form', 'qr_minimal_store_render_checkout_trust', 5 );
-add_filter( 'render_block_woocommerce/cart', 'qr_minimal_store_prepend_checkout_trust_block', 10, 2 );
-add_filter( 'render_block_woocommerce/checkout', 'qr_minimal_store_prepend_checkout_trust_block', 10, 2 );
-function qr_minimal_store_prepend_checkout_trust_block( $content, $block ) {
-	if ( ! is_cart() && ! is_checkout() ) {
-		return $content;
-	}
-	if ( function_exists( 'is_order_received_page' ) && is_order_received_page() ) {
-		return $content;
-	}
-	ob_start();
-	qr_minimal_store_render_checkout_trust();
-	return ob_get_clean() . $content;
 }
 
 /**

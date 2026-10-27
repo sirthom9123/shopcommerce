@@ -11,6 +11,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 </head>
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>
+<?php if ( qr_minimal_store_is_checkout_flow() ) : ?>
+<header class="site-header site-header--checkout">
+	<div class="container checkout-header">
+		<?php qr_minimal_store_the_brand( 'header' ); ?>
+		<p class="checkout-header__secure"><?php echo qr_minimal_store_trust_icon_svg( 'lock' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- inline SVG. ?><?php esc_html_e( 'Secure checkout', 'qr-minimal-store' ); ?></p>
+		<a class="checkout-header__back" href="<?php echo esc_url( function_exists( 'wc_get_cart_url' ) ? wc_get_cart_url() : home_url( '/cart/' ) ); ?>"><?php esc_html_e( 'Back to cart', 'qr-minimal-store' ); ?></a>
+	</div>
+</header>
+<?php else : ?>
 <header class="site-header">
 	<div class="site-header__utility">
 		<div class="container utility-row">
@@ -70,4 +79,5 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</div>
 	</nav>
 </header>
+<?php endif; ?>
 <main class="site-main">
