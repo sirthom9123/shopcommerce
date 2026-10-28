@@ -4942,6 +4942,16 @@ a.qr-section__link {
   overflow: hidden;
   border-radius: 20px;
   background: var(--qr-surface);
+  aspect-ratio: 1 / 1;
+}
+
+.qr-feature__img img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  padding: 1.5rem;
+  object-fit: contain;
 }
 
 .qr-video {
