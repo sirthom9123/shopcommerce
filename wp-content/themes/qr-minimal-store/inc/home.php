@@ -67,6 +67,13 @@ function qr_minimal_store_departments() {
 			'cats'  => array( '3d-printing', 'fdm-printers', 'resin-printers', 'wash-and-cure', 'filament', 'resin', 'spares' ),
 			'new'   => true,
 		),
+		'gaming'            => array(
+			'title' => __( 'Gaming', 'qr-minimal-store' ),
+			'sub'   => __( 'Racing wheels, keyboards, headsets, bundles', 'qr-minimal-store' ),
+			'cats'  => array( 'gaming', 'gaming-bundles', 'sim-racing', 'gaming-keyboards-mice', 'gaming-headsets-mics', 'controllers-flight', 'gaming-chairs' ),
+			'new'   => true,
+			'image' => 'SYN-PXN-V9GEN2',
+		),
 	);
 	foreach ( $departments as $key => $department ) {
 		$departments[ $key ]['new'] = ! empty( $department['new'] );
@@ -125,12 +132,14 @@ function qr_minimal_store_available_departments() {
 		if ( empty( $query->posts ) ) {
 			continue;
 		}
+		$tile_id = ! empty( $department['image'] ) ? wc_get_product_id_by_sku( $department['image'] ) : 0;
+		$tile    = $tile_id ? wc_get_product( $tile_id ) : null;
 		$available[ $key ] = array_merge(
 			$department,
 			array(
 				'key'        => $key,
 				'slugs'      => $slugs,
-				'product_id' => (int) $query->posts[0],
+				'product_id' => $tile && $tile->is_visible() && $tile->is_in_stock() ? $tile_id : (int) $query->posts[0],
 				'url'        => qr_minimal_store_department_url( $key, $slugs ),
 			)
 		);
@@ -266,9 +275,9 @@ function qr_minimal_store_offer_bar() {
  *
  * @param int $limit Max departments.
  */
-function qr_minimal_store_department_links( $limit = 7 ) {
-	// Design order (board A): the six home departments, 3D Printing, then the rest.
-	$order       = array( 'smart-home', 'kitchen', 'wearables', 'pet-tech', 'grooming-wellness', 'computer-office', '3d-printing' );
+function qr_minimal_store_department_links( $limit = 8 ) {
+	// Design order (board A): the six home departments, 3D Printing, Gaming, then the rest.
+	$order       = array( 'smart-home', 'kitchen', 'wearables', 'pet-tech', 'grooming-wellness', 'computer-office', '3d-printing', 'gaming' );
 	$available   = qr_minimal_store_available_departments();
 	$departments = array();
 	foreach ( array_unique( array_merge( $order, array_keys( $available ) ) ) as $key ) {

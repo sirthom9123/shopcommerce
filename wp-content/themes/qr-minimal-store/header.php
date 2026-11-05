@@ -42,7 +42,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	</div>
 	<nav id="primary-nav" class="qr-depts" aria-label="<?php esc_attr_e( 'Departments', 'qr-minimal-store' ); ?>">
 		<ul class="container qr-depts__list">
-			<?php qr_minimal_store_department_links( 7 ); ?>
+			<?php qr_minimal_store_department_links( 8 ); ?>
 			<li class="qr-depts__more"><a href="<?php echo esc_url( function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/shop/' ) ); ?>"><?php esc_html_e( 'Shop all products', 'qr-minimal-store' ); ?></a></li>
 			<li class="qr-depts__more"><a href="<?php echo esc_url( $account_url ); ?>"><?php echo is_user_logged_in() ? esc_html__( 'My account', 'qr-minimal-store' ) : esc_html__( 'Sign in or create an account', 'qr-minimal-store' ); ?></a></li>
 		</ul>

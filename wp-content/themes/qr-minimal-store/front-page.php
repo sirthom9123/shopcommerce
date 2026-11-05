@@ -90,11 +90,11 @@ $rule        = function_exists( 'qr_minimal_store_free_delivery_rule' ) ? qr_min
 </section>
 
 <?php
-// Tiles: the design's six, with other departments filling any gap.
-$tile_order = array( 'smart-home', 'kitchen', 'wearables', 'pet-tech', 'grooming-wellness', '3d-printing', 'computer-office', 'power-mobile', 'tv-audio' );
+// Tiles: the design's eight (two rows of four), with other departments filling any gap.
+$tile_order = array( 'smart-home', 'kitchen', 'wearables', 'pet-tech', 'grooming-wellness', 'computer-office', '3d-printing', 'gaming', 'power-mobile', 'tv-audio' );
 $tiles      = array();
 foreach ( array_unique( array_merge( $tile_order, array_keys( $departments ) ) ) as $key ) {
-	if ( isset( $departments[ $key ] ) && count( $tiles ) < 6 ) {
+	if ( isset( $departments[ $key ] ) && count( $tiles ) < 8 ) {
 		$tiles[] = $departments[ $key ];
 	}
 }
@@ -120,6 +120,8 @@ if ( $tiles ) :
 	</ul>
 </section>
 <?php endif; ?>
+
+<?php qr_minimal_store_gaming_home_band(); ?>
 
 <?php
 $popular = qr_minimal_store_popular_products( 4, array_map( fn( $p ) => $p->get_id(), $hero ) );
