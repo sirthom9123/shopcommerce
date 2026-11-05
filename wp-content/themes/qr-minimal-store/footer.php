@@ -46,7 +46,7 @@ if ( is_front_page() ) {
 		<div>
 			<h2 class="qr-footer__title"><?php esc_html_e( 'Departments', 'qr-minimal-store' ); ?></h2>
 			<ul class="qr-footer__links">
-				<?php qr_minimal_store_department_links( 9 ); ?>
+				<?php qr_minimal_store_department_links( 10 ); ?>
 			</ul>
 		</div>
 		<div>

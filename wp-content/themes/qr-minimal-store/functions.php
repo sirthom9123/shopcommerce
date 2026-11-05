@@ -27,6 +27,7 @@ require_once get_template_directory() . '/inc/product-page.php';
 require_once get_template_directory() . '/inc/home.php';
 require_once get_template_directory() . '/inc/shop.php';
 require_once get_template_directory() . '/inc/printing.php';
+require_once get_template_directory() . '/inc/gaming.php';
 require_once get_template_directory() . '/inc/account.php';
 require_once get_template_directory() . '/inc/order-status.php';
 
@@ -60,7 +61,7 @@ function qr_minimal_store_setup() {
  */
 function qr_minimal_store_brand_files() {
 	return array(
-		'favicon'   => 'favicon.png',
+		'favicon'   => 'yehuda-store-icon-blue.png',
 		'icon-dark' => 'icon-dark.png',
 		'monogram'  => 'monogram.png',
 		'wordmark'  => 'wordmark.png',
@@ -102,7 +103,7 @@ function qr_minimal_store_brand_img( $key, $class, $alt = '', $extra = array() )
 	}
 
 	$display = array(
-		'favicon'   => array( 36, 36 ),
+		'favicon'   => array( 48, 48 ),
 		'icon-dark' => array( 36, 36 ),
 		'monogram'  => array( 36, 36 ),
 		'wordmark'  => array( 213, 28 ),
@@ -135,7 +136,7 @@ function qr_minimal_store_brand_img( $key, $class, $alt = '', $extra = array() )
 }
 
 /**
- * Header/footer brand lockup: blue mark + wordmark, or Customizer logo.
+ * Header/footer logo: the blue icon, or the Customizer logo.
  *
  * @param string $variant header|footer.
  */
@@ -160,7 +161,6 @@ function qr_minimal_store_the_brand( $variant = 'header' ) {
 			);
 		} else {
 			qr_minimal_store_brand_img( 'favicon', 'brand__mark', $name, $extra );
-			qr_minimal_store_brand_img( 'wordmark', 'brand__wordmark', $name, $extra );
 		}
 		?>
 	</a>

@@ -4,6 +4,11 @@ if ( function_exists( 'qr_minimal_store_is_3d_landing' ) && qr_minimal_store_is_
 	get_template_part( 'template-parts/landing-3d-printing' );
 	return;
 }
+// Gaming landing page (Gaming.html).
+if ( function_exists( 'qr_minimal_store_is_gaming_landing' ) && qr_minimal_store_is_gaming_landing() ) {
+	get_template_part( 'template-parts/landing-gaming' );
+	return;
+}
 // Product listings (shop, categories, brands, product search) use the board E template.
 if ( function_exists( 'qr_minimal_store_is_product_listing' ) && qr_minimal_store_is_product_listing() ) {
 	wc_get_template( 'archive-product.php' );
