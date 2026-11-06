@@ -122,15 +122,9 @@ foreach ( qr_minimal_store_3d_categories() as $slug => $category ) {
 		<section id="printers" class="container qr-section">
 			<div class="qr-section__head">
 				<h2 class="qr-h2"><?php esc_html_e( 'Printers', 'qr-minimal-store' ); ?></h2>
-				<p class="qr-section__sub">
-					<?php
-					echo esc_html(
-						$all_free
-							? __( 'No VAT added at checkout. Every printer ships free.', 'qr-minimal-store' )
-							: __( 'No VAT added at checkout.', 'qr-minimal-store' )
-					);
-					?>
-				</p>
+				<?php if ( $all_free ) : ?>
+					<p class="qr-section__sub"><?php esc_html_e( 'Every printer ships free.', 'qr-minimal-store' ); ?></p>
+				<?php endif; ?>
 			</div>
 			<ul class="qr-cards qr-print__printers">
 				<?php
