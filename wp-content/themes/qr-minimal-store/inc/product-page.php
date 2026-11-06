@@ -133,7 +133,6 @@ function qr_minimal_store_product_page_layout() {
 	remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_sharing', 50 );
 	add_action( 'woocommerce_single_product_summary', 'qr_minimal_store_buybox_brand', 4 );
 	add_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_excerpt', 6 );
-	add_action( 'woocommerce_single_product_summary', 'qr_minimal_store_buybox_vat_note', 10 );
 	add_action( 'woocommerce_single_product_summary', 'qr_minimal_store_buybox_stock', 16 );
 	add_action( 'woocommerce_single_product_summary', 'qr_minimal_store_buybox_delivery', 17 );
 	add_action( 'woocommerce_single_product_summary', 'qr_minimal_store_buybox_payment_line', 35 );
@@ -168,13 +167,6 @@ function qr_minimal_store_buybox_brand() {
 	$parts[] = esc_html__( 'Authorised dealer', 'qr-minimal-store' );
 	$parts[] = esc_html__( 'Local warranty', 'qr-minimal-store' );
 	echo '<p class="qr-buybox__brand">' . implode( ' · ', $parts ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above.
-}
-
-function qr_minimal_store_buybox_vat_note() {
-	if ( function_exists( 'wc_tax_enabled' ) && wc_tax_enabled() ) {
-		return;
-	}
-	echo '<p class="qr-buybox__vat">' . esc_html__( 'No VAT added at checkout', 'qr-minimal-store' ) . '</p>';
 }
 
 function qr_minimal_store_buybox_stock() {
