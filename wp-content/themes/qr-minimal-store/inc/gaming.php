@@ -223,28 +223,72 @@ function qr_minimal_store_gaming_short_name( $product ) {
 }
 
 /**
- * Published single product for a component SKU: "SYN-<code>" (how store_sync creates them), else
- * the code itself.
+ * Published single product for a component supplier code: SKU "SYN-<code>" (how store_sync creates
+ * them), else SKU "<code>", else a product whose supplier_code meta has the code as one of its "|"
+ * parts (the Xiaomi singles have their own SKUs such as QR-XIAOMISMARTBAND11 and keep colour
+ * alternatives as "A|B|C"). Bundles never count as a component.
  *
- * @param string $code Supplier SKU.
+ * @param string $code Supplier code.
  * @return WC_Product|null
  */
 function qr_minimal_store_gaming_component( $code ) {
+	static $found = array();
+	$code = strtoupper( trim( (string) $code ) );
+	if ( '' === $code ) {
+		return null;
+	}
+	if ( array_key_exists( $code, $found ) ) {
+		return $found[ $code ];
+	}
+	$found[ $code ] = null;
 	foreach ( array( 'SYN-' . $code, $code ) as $sku ) {
 		$id = wc_get_product_id_by_sku( $sku );
 		if ( $id ) {
 			$product = wc_get_product( $id );
-			if ( $product && 'publish' === $product->get_status() ) {
+			if ( $product && 'publish' === $product->get_status() && '' === (string) $product->get_meta( '_bundle_items' ) ) {
+				$found[ $code ] = $product;
 				return $product;
 			}
+		}
+	}
+	$query = new WP_Query(
+		array(
+			'post_type'           => 'product',
+			'post_status'         => 'publish',
+			'posts_per_page'      => 20,
+			'fields'              => 'ids',
+			'no_found_rows'       => true,
+			'ignore_sticky_posts' => true,
+			'orderby'             => 'ID',
+			'order'               => 'ASC',
+			'meta_query'          => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				array(
+					'key'     => 'supplier_code',
+					'value'   => $code,
+					'compare' => 'LIKE',
+				),
+			),
+		)
+	);
+	foreach ( $query->posts as $id ) {
+		$product = wc_get_product( $id );
+		if ( ! $product || '' !== (string) $product->get_meta( '_bundle_items' ) ) {
+			continue;
+		}
+		$parts = array_map( 'trim', explode( '|', strtoupper( (string) $product->get_meta( 'supplier_code' ) ) ) );
+		if ( in_array( $code, $parts, true ) ) {
+			$found[ $code ] = $product;
+			return $product;
 		}
 	}
 	return null;
 }
 
 /**
- * All published bundles with their live numbers, start set first. A bundle with a component that
- * is not on sale on its own is left out: there is no honest "bought separately" total for it.
+ * Published gaming bundles (category gaming-bundles only; the home bundle deals live in Bundle
+ * Deals and must not show on /gaming/) with their live numbers, start set first. A bundle with a
+ * component that is not on sale on its own is left out: there is no honest "bought separately"
+ * total for it.
  *
  * @return array<int, array> product, code, title, anchor, inc, group, tag, for, hot, items (product,
  *                           name, price), price, total, save, in_stock, free.
@@ -268,6 +312,13 @@ function qr_minimal_store_gaming_bundles() {
 			'ignore_sticky_posts' => true,
 			'meta_key'            => '_bundle_items', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 			'tax_query'           => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+				'relation' => 'AND',
+				array(
+					'taxonomy'         => 'product_cat',
+					'field'            => 'slug',
+					'terms'            => array( 'gaming-bundles' ),
+					'include_children' => false,
+				),
 				array(
 					'taxonomy' => 'product_visibility',
 					'field'    => 'name',
