@@ -7644,7 +7644,10 @@ a.qr-section__link {
    ========================================================================== */
 
 .qr-gaming,
-.qr-gband {
+.qr-gband,
+.qr-bdeals,
+.qr-bundlebox,
+.qr-pnudge {
   --qr-g-ink: #0a0c12;
   --qr-g-ink2: #121620;
   --qr-g-line: rgba(255, 255, 255, 0.09);
@@ -8574,4 +8577,93 @@ a.qr-section__link {
   .qr-gband__cards {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+/* ==========================================================================
+   Bundle deals outside /gaming/ (inc/bundles.php): category strip, Bundle
+   Deals page, What's in the box and the nudge on product pages
+   ========================================================================== */
+
+.qr-bdeals {
+  margin: 1.5rem 0 2.5rem;
+}
+
+.qr-bdeals--page {
+  margin-bottom: 1.5rem;
+}
+
+.qr-bdeals__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.qr-bdeals__head h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+}
+
+.qr-bdeals__head p {
+  margin: 0.25rem 0 0;
+  color: var(--qr-muted);
+}
+
+.qr-bdeals__all {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 44px;
+  font-weight: 600;
+}
+
+.qr-bdeals .qr-bundle:not(.is-hot) {
+  border-color: var(--qr-border);
+  background: var(--qr-bg);
+}
+
+.qr-shop__grid[hidden] {
+  display: none;
+}
+
+.qr-bundlebox {
+  margin: 1rem 0;
+  padding: 1rem 1.125rem;
+  border-radius: 14px;
+  background: var(--qr-surface);
+}
+
+.qr-bundlebox__title {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.qr-bundlebox .qr-bundle__box {
+  margin: 0;
+}
+
+.qr-bundlebox .qr-bundle__box a {
+  color: var(--qr-text);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.qr-bundlebox__total {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  align-items: center;
+  margin: 0.75rem 0 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--qr-border);
+}
+
+.qr-nudge.qr-pnudge {
+  margin: 1rem 0;
+  padding: 0.75rem 0.875rem 0.25rem;
+  font-size: 0.875rem;
 }

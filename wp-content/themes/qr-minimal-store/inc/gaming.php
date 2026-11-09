@@ -1,11 +1,9 @@
 <?php
 /**
  * Gaming department (designs Gaming.html, HomeGaming.html): category tree, the /gaming/ landing
- * page and bundles.
- *
- * A bundle is a simple product with the meta _bundle_items = its component supplier SKUs joined
- * with "+". store_sync keeps its stock (the lowest component stock) and creates it. Every price,
- * total and saving here is worked out from live store prices; nothing is hard-coded.
+ * page and the gaming bundles. The bundle logic itself (components, live totals, cards, nudge)
+ * is shared with the other departments in inc/bundles.php; this file passes it the
+ * gaming-bundles category and the gaming card wording.
  *
  * @package qr-minimal-store
  */
@@ -211,147 +209,61 @@ function qr_minimal_store_gaming_short_names() {
 }
 
 /**
+ * Gaming short names join the shared short-name list.
+ */
+add_filter( 'qr_minimal_store_bundle_short_names', 'qr_minimal_store_gaming_add_short_names' );
+function qr_minimal_store_gaming_add_short_names( $names ) {
+	return array_merge( (array) $names, qr_minimal_store_gaming_short_names() );
+}
+
+/**
  * Short card name of a gaming product, else its store name.
  *
  * @param WC_Product $product Product.
  * @return string
  */
 function qr_minimal_store_gaming_short_name( $product ) {
-	$names = qr_minimal_store_gaming_short_names();
-	$code  = strtoupper( trim( (string) $product->get_meta( 'supplier_code' ) ) );
-	return isset( $names[ $code ] ) ? $names[ $code ] : html_entity_decode( $product->get_name(), ENT_QUOTES, 'UTF-8' );
+	return qr_minimal_store_bundle_short_name( $product );
 }
 
 /**
- * Published single product for a component SKU: "SYN-<code>" (how store_sync creates them), else
- * the code itself.
+ * Published single product for a component supplier code (see qr_minimal_store_bundle_component()).
  *
- * @param string $code Supplier SKU.
+ * @param string $code Supplier code.
  * @return WC_Product|null
  */
 function qr_minimal_store_gaming_component( $code ) {
-	foreach ( array( 'SYN-' . $code, $code ) as $sku ) {
-		$id = wc_get_product_id_by_sku( $sku );
-		if ( $id ) {
-			$product = wc_get_product( $id );
-			if ( $product && 'publish' === $product->get_status() ) {
-				return $product;
-			}
-		}
-	}
-	return null;
+	return qr_minimal_store_bundle_component( $code );
 }
 
 /**
- * All published bundles with their live numbers, start set first. A bundle with a component that
- * is not on sale on its own is left out: there is no honest "bought separately" total for it.
+ * Published gaming bundles (category gaming-bundles only; the home bundle deals live in Bundle
+ * Deals and must not show on /gaming/) with their live numbers, start set first. A bundle with a
+ * component that is not on sale on its own is left out (inc/bundles.php).
  *
- * @return array<int, array> product, code, title, anchor, inc, group, tag, for, hot, items (product,
- *                           name, price), price, total, save, in_stock, free.
+ * @return array<int, array> See qr_minimal_store_bundle_data(); group is racing or desk.
  */
 function qr_minimal_store_gaming_bundles() {
 	static $bundles = null;
 	if ( null !== $bundles ) {
 		return $bundles;
 	}
-	$bundles = array();
-	if ( ! function_exists( 'wc_get_product' ) ) {
-		return $bundles;
+	$bundles = qr_minimal_store_bundles( array( 'gaming-bundles' ), qr_minimal_store_gaming_bundle_defs() );
+	foreach ( $bundles as $index => $bundle ) {
+		if ( '' === $bundle['group'] ) {
+			$bundles[ $index ]['group'] = has_term( 'sim-racing', 'product_cat', $bundle['items'][0]['product']->get_id() ) ? 'racing' : 'desk';
+		}
 	}
-	$query = new WP_Query(
-		array(
-			'post_type'           => 'product',
-			'post_status'         => 'publish',
-			'posts_per_page'      => 24,
-			'fields'              => 'ids',
-			'no_found_rows'       => true,
-			'ignore_sticky_posts' => true,
-			'meta_key'            => '_bundle_items', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-			'tax_query'           => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
-				array(
-					'taxonomy' => 'product_visibility',
-					'field'    => 'name',
-					'terms'    => array( 'exclude-from-catalog' ),
-					'operator' => 'NOT IN',
-				),
-			),
-		)
-	);
-	$defs  = qr_minimal_store_gaming_bundle_defs();
-	$rule  = function_exists( 'qr_minimal_store_free_delivery_rule' ) ? qr_minimal_store_free_delivery_rule() : null;
-	foreach ( $query->posts as $id ) {
-		$product = wc_get_product( $id );
-		$code    = $product ? strtoupper( trim( (string) $product->get_meta( '_bundle_items' ) ) ) : '';
-		$codes   = array_values( array_filter( array_map( 'trim', explode( '+', $code ) ) ) );
-		if ( count( $codes ) < 2 ) {
-			continue;
-		}
-		$items = array();
-		$total = 0.0;
-		foreach ( $codes as $part ) {
-			$component = qr_minimal_store_gaming_component( $part );
-			if ( ! $component ) {
-				$items = array();
-				break;
-			}
-			$price   = (float) wc_get_price_to_display( $component );
-			$total  += $price;
-			$items[] = array(
-				'product' => $component,
-				'name'    => qr_minimal_store_gaming_short_name( $component ),
-				'price'   => $price,
-			);
-		}
-		if ( ! $items ) {
-			continue;
-		}
-		$def   = isset( $defs[ $code ] ) ? $defs[ $code ] : array();
-		$title = isset( $def['title'] ) ? $def['title'] : preg_replace( '/\s+Bundle$/i', '', html_entity_decode( $product->get_name(), ENT_QUOTES, 'UTF-8' ) );
-		$tag   = trim( (string) $product->get_meta( '_qr_card_label' ) );
-		$for   = trim( (string) $product->get_meta( '_qr_tagline' ) );
-		if ( isset( $def['group'] ) ) {
-			$group = $def['group'];
-		} else {
-			$group = has_term( 'sim-racing', 'product_cat', $items[0]['product']->get_id() ) ? 'racing' : 'desk';
-		}
-		$price     = (float) wc_get_price_to_display( $product );
-		$bundles[] = array(
-			'product'  => $product,
-			'code'     => $code,
-			'title'    => $title,
-			'anchor'   => isset( $def['anchor'] ) ? $def['anchor'] : 'bundle-' . sanitize_title( $title ),
-			'inc'      => isset( $def['inc'] ) ? $def['inc'] : implode( ' + ', array_column( $items, 'name' ) ),
-			'group'    => $group,
-			'tag'      => '' !== $tag ? $tag : ( isset( $def['tag'] ) ? $def['tag'] : '' ),
-			'for'      => '' !== $for ? $for : ( isset( $def['for'] ) ? $def['for'] : wp_strip_all_tags( $product->get_short_description() ) ),
-			'hot'      => ! empty( $def['hot'] ),
-			'items'    => $items,
-			'price'    => $price,
-			'total'    => $total,
-			'save'     => max( 0.0, $total - $price ),
-			'in_stock' => $product->is_purchasable() && $product->is_in_stock(),
-			'free'     => $rule && $price >= $rule['threshold'],
-		);
-	}
-	$order = array_flip( array_keys( $defs ) );
-	usort(
-		$bundles,
-		static function ( $a, $b ) use ( $order ) {
-			$a_rank = isset( $order[ $a['code'] ] ) ? $order[ $a['code'] ] : PHP_INT_MAX;
-			$b_rank = isset( $order[ $b['code'] ] ) ? $order[ $b['code'] ] : PHP_INT_MAX;
-			return $a_rank === $b_rank ? $a['price'] <=> $b['price'] : $a_rank <=> $b_rank;
-		}
-	);
 	return $bundles;
 }
 
 /**
- * Bundles that can be bought now.
+ * Gaming bundles that can be bought now.
  *
  * @return array<int, array>
  */
 function qr_minimal_store_gaming_buyable_bundles() {
-	return array_values( array_filter( qr_minimal_store_gaming_bundles(), static fn( $bundle ) => $bundle['in_stock'] ) );
+	return qr_minimal_store_bundles_buyable( qr_minimal_store_gaming_bundles() );
 }
 
 /**
@@ -365,26 +277,13 @@ function qr_minimal_store_gaming_bundle_url( $bundle ) {
 }
 
 /**
- * The bundle to nudge a single item towards: _bundle_items read in reverse. When the item is in
- * several bundles, the cheapest one in stock with a real saving wins.
+ * The gaming bundle to nudge a single item towards on /gaming/.
  *
  * @param WC_Product $product Single item.
  * @return array|null
  */
 function qr_minimal_store_gaming_nudge_bundle( $product ) {
-	$best = null;
-	foreach ( qr_minimal_store_gaming_buyable_bundles() as $bundle ) {
-		if ( $bundle['save'] <= 0 || ( $best && $best['price'] <= $bundle['price'] ) ) {
-			continue;
-		}
-		foreach ( $bundle['items'] as $item ) {
-			if ( $item['product']->get_id() === $product->get_id() ) {
-				$best = $bundle;
-				break;
-			}
-		}
-	}
-	return $best;
+	return qr_minimal_store_bundle_nudge( $product, qr_minimal_store_gaming_bundles() );
 }
 
 /**
@@ -447,13 +346,7 @@ function qr_minimal_store_gaming_hero_products() {
  * @return string
  */
 function qr_minimal_store_gaming_image( $product, $alt, $size = 'woocommerce_thumbnail', $loading = 'lazy' ) {
-	return $product->get_image(
-		$size,
-		array(
-			'alt'     => $alt,
-			'loading' => $loading,
-		)
-	);
+	return qr_minimal_store_bundle_image( $product, $alt, $size, $loading );
 }
 
 /**
@@ -463,80 +356,16 @@ function qr_minimal_store_gaming_image( $product, $alt, $size = 'woocommerce_thu
  * @param string $class  Extra class.
  */
 function qr_minimal_store_gaming_collage( $bundle, $class = '' ) {
-	$items = array_slice( $bundle['items'], 0, 4 );
-	?>
-	<div class="qr-collage qr-collage--<?php echo esc_attr( (string) count( $items ) ); ?> <?php echo esc_attr( $class ); ?>">
-		<?php foreach ( $items as $index => $item ) : ?>
-			<span class="qr-gtile"><?php echo qr_minimal_store_gaming_image( $item['product'], $item['name'], 0 === $index ? 'woocommerce_single' : 'woocommerce_thumbnail' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- WooCommerce image HTML. ?></span>
-		<?php endforeach; ?>
-	</div>
-	<?php
+	qr_minimal_store_bundle_collage( $bundle, $class );
 }
 
 /**
- * Bundle card (Gaming.html). The Save badge and the crossed-out total only show while the bundle
- * really costs less than its parts.
+ * Bundle card (Gaming.html).
  *
  * @param array $bundle Bundle.
  */
 function qr_minimal_store_gaming_bundle_card( $bundle ) {
-	$product = $bundle['product'];
-	$url     = $product->get_permalink();
-	?>
-	<article id="<?php echo esc_attr( $bundle['anchor'] ); ?>" class="qr-bundle<?php echo $bundle['hot'] ? ' is-hot' : ''; ?><?php echo $bundle['in_stock'] ? '' : ' is-sold-out'; ?> product">
-		<?php if ( '' !== $bundle['tag'] ) : ?>
-			<span class="qr-bundle__tag"><?php echo esc_html( $bundle['tag'] ); ?></span>
-		<?php endif; ?>
-		<?php if ( $bundle['save'] > 0 ) : ?>
-			<span class="qr-save">
-				<?php
-				/* translators: %s: amount saved */
-				echo esc_html( sprintf( __( 'Save %s', 'qr-minimal-store' ), qr_minimal_store_money_whole( $bundle['save'] ) ) );
-				?>
-			</span>
-		<?php endif; ?>
-		<a class="qr-bundle__media" href="<?php echo esc_url( $url ); ?>" tabindex="-1" aria-hidden="true">
-			<?php qr_minimal_store_gaming_collage( $bundle ); ?>
-		</a>
-		<h3 class="qr-bundle__name"><a href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $bundle['title'] ); ?></a></h3>
-		<?php if ( '' !== $bundle['for'] ) : ?>
-			<p class="qr-bundle__for"><?php echo esc_html( $bundle['for'] ); ?></p>
-		<?php endif; ?>
-		<p class="screen-reader-text"><?php esc_html_e( "What's in the box", 'qr-minimal-store' ); ?></p>
-		<ul class="qr-bundle__box">
-			<?php foreach ( $bundle['items'] as $item ) : ?>
-				<li>
-					<span><?php echo esc_html( $item['name'] ); ?></span>
-					<span><?php echo wp_kses_post( wc_price( $item['price'] ) ); ?></span>
-				</li>
-			<?php endforeach; ?>
-		</ul>
-		<div class="qr-bundle__pricing">
-			<p class="qr-bundle__line">
-				<span class="qr-bundle__price"><?php echo wp_kses_post( wc_price( $bundle['price'] ) ); ?></span>
-				<?php if ( $bundle['save'] > 0 ) : ?>
-					<span class="qr-was"><s><?php echo wp_kses_post( wc_price( $bundle['total'] ) ); ?></s> <?php esc_html_e( 'bought separately', 'qr-minimal-store' ); ?></span>
-				<?php endif; ?>
-			</p>
-			<p class="qr-bundle__meta">
-				<?php if ( $bundle['in_stock'] ) : ?>
-					<span class="qr-gstock"><?php esc_html_e( 'In stock', 'qr-minimal-store' ); ?></span>
-					<?php if ( $bundle['free'] ) : ?>
-						<span class="qr-gfree"><?php esc_html_e( 'Free delivery', 'qr-minimal-store' ); ?></span>
-					<?php endif; ?>
-					<span class="qr-gsmall"><?php esc_html_e( 'or pay monthly, subject to approval', 'qr-minimal-store' ); ?></span>
-				<?php else : ?>
-					<span class="qr-gstock is-out"><?php esc_html_e( 'Out of stock', 'qr-minimal-store' ); ?></span>
-				<?php endif; ?>
-			</p>
-			<?php if ( $bundle['in_stock'] && $product->supports( 'ajax_add_to_cart' ) ) : ?>
-				<a class="qr-btn qr-bundle__add add_to_cart_button ajax_add_to_cart" href="<?php echo esc_url( $product->add_to_cart_url() ); ?>" data-product_id="<?php echo esc_attr( (string) $product->get_id() ); ?>" data-quantity="1" data-product_sku="<?php echo esc_attr( $product->get_sku() ); ?>" rel="nofollow"><?php esc_html_e( 'Add bundle to cart', 'qr-minimal-store' ); ?><span class="screen-reader-text">: <?php echo esc_html( $bundle['title'] ); ?></span></a>
-			<?php else : ?>
-				<a class="qr-btn qr-btn--outline qr-bundle__add" href="<?php echo esc_url( $url ); ?>"><?php esc_html_e( 'View bundle', 'qr-minimal-store' ); ?><span class="screen-reader-text">: <?php echo esc_html( $bundle['title'] ); ?></span></a>
-			<?php endif; ?>
-		</div>
-	</article>
-	<?php
+	qr_minimal_store_bundle_card( $bundle );
 }
 
 /**
@@ -557,27 +386,7 @@ function qr_minimal_store_gaming_single_card( $product ) {
 		<h3 class="qr-gsingle__name"><a href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $name ); ?></a></h3>
 		<p class="qr-gsingle__price"><?php echo wp_kses_post( $product->get_price_html() ); ?></p>
 		<?php if ( $bundle ) : ?>
-			<?php $more = count( $bundle['items'] ) - 1; ?>
-			<p class="qr-nudge">
-				<?php
-				echo wp_kses(
-					sprintf(
-						/* translators: 1: bundle name, 2: number of other items in the bundle, 3: amount saved */
-						_n(
-							'Part of the <b>%1$s</b> bundle: get it with %2$d more item and <b>save %3$s</b>.',
-							'Part of the <b>%1$s</b> bundle: get it with %2$d more items and <b>save %3$s</b>.',
-							$more,
-							'qr-minimal-store'
-						),
-						esc_html( $bundle['title'] ),
-						$more,
-						esc_html( qr_minimal_store_money_whole( $bundle['save'] ) )
-					),
-					array( 'b' => array() )
-				);
-				?>
-				<a href="#<?php echo esc_attr( $bundle['anchor'] ); ?>"><?php esc_html_e( 'See bundle', 'qr-minimal-store' ); ?><span class="screen-reader-text">: <?php echo esc_html( $bundle['title'] ); ?></span></a>
-			</p>
+			<?php qr_minimal_store_bundle_nudge_html( $bundle, '#' . $bundle['anchor'] ); ?>
 		<?php elseif ( $rule ) : ?>
 			<p class="qr-gsmall qr-gsingle__delivery">
 				<?php
