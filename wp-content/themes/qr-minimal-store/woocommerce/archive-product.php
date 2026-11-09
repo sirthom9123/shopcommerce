@@ -24,6 +24,12 @@ $active   = $filters['stock_all'] || $filters['price'] || $filters['brand'];
 $clear    = qr_minimal_store_listing_url( array( 'sort' => $filters['sort'] ) );
 $rule     = function_exists( 'qr_minimal_store_free_delivery_rule' ) ? qr_minimal_store_free_delivery_rule() : null;
 
+// Bundle cards (inc/bundles.php): on Bundle Deals they replace the bundles' product cards, on other
+// category and department pages a strip of the bundles listed there sits above the grid.
+$listing_bundles = function_exists( 'qr_minimal_store_listing_bundles' ) ? qr_minimal_store_listing_bundles() : null;
+$deal_ids        = $listing_bundles && 'deals' === $listing_bundles['mode'] ? array_map( static fn( $bundle ) => $bundle['product']->get_id(), $listing_bundles['bundles'] ) : array();
+$grid_ids        = array_diff( array_map( 'intval', wp_list_pluck( $wp_query->posts, 'ID' ) ), $deal_ids );
+
 /* translators: %d: number of products */
 $count_text = sprintf( _n( '%d product', '%d products', $total, 'qr-minimal-store' ), $total );
 
@@ -76,6 +82,12 @@ $facet_json = array(
 			</ul>
 		<?php endif; ?>
 	</header>
+
+	<?php
+	if ( $listing_bundles && 'strip' === $listing_bundles['mode'] ) {
+		qr_minimal_store_bundle_strip( $listing_bundles['bundles'] );
+	}
+	?>
 
 	<div class="qr-shop__layout">
 		<aside class="qr-shop__rail">
@@ -205,13 +217,24 @@ $facet_json = array(
 			</div>
 
 			<?php if ( have_posts() ) : ?>
-				<ul class="qr-cards qr-shop__grid" data-qr-grid>
+				<?php if ( $deal_ids ) : ?>
+					<div class="qr-bdeals qr-bdeals--page">
+						<div class="qr-bundles qr-bundles--two">
+							<?php
+							foreach ( $listing_bundles['bundles'] as $bundle ) {
+								qr_minimal_store_bundle_card( $bundle );
+							}
+							?>
+						</div>
+					</div>
+				<?php endif; ?>
+				<ul class="qr-cards qr-shop__grid" data-qr-grid<?php echo $grid_ids ? '' : ' hidden'; ?>>
 					<?php
 					$index = 0;
 					while ( have_posts() ) {
 						the_post();
 						$product = wc_get_product( get_the_ID() );
-						if ( ! $product || ! $product->is_visible() ) {
+						if ( ! $product || ! $product->is_visible() || in_array( $product->get_id(), $deal_ids, true ) ) {
 							continue;
 						}
 						qr_minimal_store_product_card( $product, array( 'free_tag' => true ) );
