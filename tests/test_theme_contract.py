@@ -592,5 +592,11 @@ class ThemeContractTests(unittest.TestCase):
         self.assertIn(".deal-of-day", css)
 
 
+    def test_bundle_nudge_matches_colour_variations(self):
+        php = self.read("inc/bundles.php")
+        nudge = php[php.index("function qr_minimal_store_bundle_nudge("):php.index("/* ---------- Markup")]
+        self.assertIn("get_parent_id() === $id", nudge)
+        self.assertIn("$item['qty']", nudge)
+
 if __name__ == "__main__":
     unittest.main()

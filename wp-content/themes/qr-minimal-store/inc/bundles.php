@@ -305,24 +305,35 @@ function qr_minimal_store_bundles_buyable( $bundles ) {
 }
 
 /**
- * The bundle to nudge a single item towards: the cheapest one in stock with a real saving that
- * has the item in it.
+ * The bundle to nudge a single item towards: of the bundles in stock with a real saving that have
+ * the item in it, the one with the most units of the item (a His & Hers pair of the watch being
+ * viewed beats a mixed bundle), then the cheapest. A component can be a colour variation (store_sync
+ * gives variations the SKU "SYN-<code>"); it counts as its parent, the product page being viewed.
  *
  * @param WC_Product        $product Single item.
  * @param array<int, array> $bundles Bundles to pick from.
  * @return array|null
  */
 function qr_minimal_store_bundle_nudge( $product, $bundles ) {
-	$best = null;
+	$best       = null;
+	$best_units = 0;
+	$id         = $product->get_id();
+	if ( ! $id ) {   // An unsaved product would match every simple component (parent id 0).
+		return null;
+	}
 	foreach ( qr_minimal_store_bundles_buyable( $bundles ) as $bundle ) {
-		if ( $bundle['save'] <= 0 || ( $best && $best['price'] <= $bundle['price'] ) ) {
+		if ( $bundle['save'] <= 0 ) {
 			continue;
 		}
+		$units = 0;
 		foreach ( $bundle['items'] as $item ) {
-			if ( $item['product']->get_id() === $product->get_id() ) {
-				$best = $bundle;
-				break;
+			if ( $item['product']->get_id() === $id || $item['product']->get_parent_id() === $id ) {
+				$units += $item['qty'];
 			}
+		}
+		if ( $units > $best_units || ( $units && $units === $best_units && $bundle['price'] < $best['price'] ) ) {
+			$best       = $bundle;
+			$best_units = $units;
 		}
 	}
 	return $best;
