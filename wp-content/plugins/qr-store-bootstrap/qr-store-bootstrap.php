@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: QR Store Bootstrap
- * Description: Foundation bootstrap for the minimalist WooCommerce storefront.
- * Version: 1.1.2
+ * Description: Foundation bootstrap for the minimalist WooCommerce storefront, plus Google Merchant Center feed fixes (backorder availability date, ASCII image file names).
+ * Version: 1.2.0
  * Author: QR Store
  * License: GPL-2.0-or-later
  */
@@ -12,10 +12,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define( 'QR_STORE_BOOTSTRAP_FILE', __FILE__ );
+define( 'QR_STORE_BOOTSTRAP_VERSION', '1.2.0' );
 define( 'QR_STORE_BOOTSTRAP_OPTION', 'qr_store_bootstrap_initialized' );
 define( 'QR_STORE_CATALOG_SEEDED_OPTION', 'qr_store_catalog_seeded' );
 
 require_once __DIR__ . '/includes/legal-pages.php';
+require_once __DIR__ . '/includes/merchant-feed.php';
 
 add_action( 'before_woocommerce_init', 'qr_store_declare_hpos_compatibility' );
 function qr_store_declare_hpos_compatibility() {
