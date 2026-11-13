@@ -8,7 +8,8 @@
  *
  * Where bundles show:
  * - /gaming/ (template-parts/landing-gaming.php, gaming-bundles only, via inc/gaming.php).
- * - Bundle Deals and Gaming Bundles category pages: bundle cards instead of product cards.
+ * - Bundle Deals lists every bundle: its own category plus Gaming Bundles. Gaming Bundles and
+ *   /gaming/ stay limited to gaming-bundles. Cards replace the product cards on both pages.
  * - Other category and department pages: a "Bundle deals" strip of the bundles listed there.
  * - A component's product page: the nudge towards the cheapest in-stock bundle with a saving.
  * - The bundle's own product page: What's in the box with live single prices and the saving.
@@ -27,6 +28,55 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function qr_minimal_store_bundle_categories() {
 	return array( 'bundle-deals', 'gaming-bundles' );
+}
+
+/**
+ * Categories on the Bundle Deals page. Gaming bundles stay in gaming-bundles; this query shows
+ * them here as well. Their categories, prices and other product data are not changed.
+ *
+ * @return string[]
+ */
+function qr_minimal_store_bundle_deals_query_slugs() {
+	$slugs = array( 'bundle-deals' );
+	if ( term_exists( 'gaming-bundles', 'product_cat' ) ) {
+		$slugs[] = 'gaming-bundles';
+	}
+	return $slugs;
+}
+
+/**
+ * Bundle Deals archive includes Gaming Bundles. The query var is put back afterwards so the
+ * page, its filters and the current-department marker stay on the Bundle Deals category.
+ *
+ * @param WP_Query $q Query.
+ */
+add_action( 'pre_get_posts', 'qr_minimal_store_bundle_deals_query', 20 );
+function qr_minimal_store_bundle_deals_query( $q ) {
+	if ( is_admin() || ! $q instanceof WP_Query || ! $q->is_main_query() || ! $q->is_tax( 'product_cat', 'bundle-deals' ) ) {
+		return;
+	}
+	$slugs = qr_minimal_store_bundle_deals_query_slugs();
+	if ( count( $slugs ) < 2 ) {
+		return;
+	}
+	$q->set( 'product_cat', implode( ',', $slugs ) );
+	$q->set( 'qr_bundle_deals_expanded', true );
+}
+
+/**
+ * Put the Bundle Deals query var back after the posts are loaded.
+ *
+ * @param WP_Post[] $posts Posts.
+ * @param WP_Query  $q     Query.
+ * @return WP_Post[]
+ */
+add_filter( 'the_posts', 'qr_minimal_store_bundle_deals_restore_query_var', 1, 2 );
+function qr_minimal_store_bundle_deals_restore_query_var( $posts, $q ) {
+	if ( $q instanceof WP_Query && $q->get( 'qr_bundle_deals_expanded' ) ) {
+		$q->set( 'product_cat', 'bundle-deals' );
+		$q->set( 'qr_bundle_deals_expanded', false );
+	}
+	return $posts;
 }
 
 /**
@@ -575,7 +625,8 @@ function qr_minimal_store_listing_bundles() {
 		return null;
 	}
 	if ( 1 === count( $slugs ) && in_array( $slugs[0], qr_minimal_store_bundle_categories(), true ) ) {
-		$bundles = qr_minimal_store_bundles( $slugs );
+		$cats    = ( 'bundle-deals' === $slugs[0] ) ? qr_minimal_store_bundle_deals_query_slugs() : $slugs;
+		$bundles = qr_minimal_store_bundles( $cats );
 		// In stock first, keeping the price order.
 		usort( $bundles, static fn( $a, $b ) => (int) $b['in_stock'] <=> (int) $a['in_stock'] );
 		return $bundles ? array(

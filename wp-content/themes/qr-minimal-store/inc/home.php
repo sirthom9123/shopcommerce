@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * current product categories; once a parent category with the department slug exists (and
  * has sub-categories), links go to that category instead.
  *
- * @return array<string, array{title: string, sub: string, cats: string[], new: bool}>
+ * @return array<string, array{title: string, sub: string, cats: string[], new: bool, pill?: string}>
  */
 function qr_minimal_store_departments() {
 	$departments = array(
@@ -74,6 +74,13 @@ function qr_minimal_store_departments() {
 			'new'   => true,
 			'image' => 'SYN-PXN-V9GEN2',
 		),
+		// After Gaming in the array so a product in a real department still matches that department first.
+		'bundles'           => array(
+			'title' => __( 'Bundles', 'qr-minimal-store' ),
+			'sub'   => __( 'Sets that cost less than the same items bought one by one', 'qr-minimal-store' ),
+			'cats'  => array( 'bundle-deals' ),
+			'pill'  => __( 'Save', 'qr-minimal-store' ),
+		),
 	);
 	foreach ( $departments as $key => $department ) {
 		$departments[ $key ]['new'] = ! empty( $department['new'] );
@@ -88,7 +95,7 @@ function qr_minimal_store_departments() {
  * @return array<string, array>
  */
 function qr_minimal_store_available_departments() {
-	$cached = get_transient( 'qr_minimal_store_departments' );
+	$cached = get_transient( 'qr_minimal_store_departments_v2' );
 	if ( is_array( $cached ) ) {
 		return $cached;
 	}
@@ -144,7 +151,7 @@ function qr_minimal_store_available_departments() {
 			)
 		);
 	}
-	set_transient( 'qr_minimal_store_departments', $available, 30 * MINUTE_IN_SECONDS );
+	set_transient( 'qr_minimal_store_departments_v2', $available, 30 * MINUTE_IN_SECONDS );
 	return $available;
 }
 
@@ -154,6 +161,7 @@ add_action( 'created_product_cat', 'qr_minimal_store_flush_home_cache' );
 add_action( 'edited_product_cat', 'qr_minimal_store_flush_home_cache' );
 function qr_minimal_store_flush_home_cache() {
 	delete_transient( 'qr_minimal_store_departments' );
+	delete_transient( 'qr_minimal_store_departments_v2' );
 }
 
 /**
@@ -276,8 +284,9 @@ function qr_minimal_store_offer_bar() {
  * @param int $limit Max departments.
  */
 function qr_minimal_store_department_links( $limit = 8 ) {
-	// Design order (board A): the six home departments, 3D Printing, Gaming, then the rest.
-	$order       = array( 'smart-home', 'kitchen', 'wearables', 'pet-tech', 'grooming-wellness', 'computer-office', '3d-printing', 'gaming' );
+	// Bundles sits after Gaming. It does not use up a limit slot: the desktop header keeps its
+	// eight departments plus Bundles, and the footer still has room for Power & Mobile and TV & Audio.
+	$order       = array( 'smart-home', 'kitchen', 'wearables', 'pet-tech', 'grooming-wellness', 'computer-office', '3d-printing', 'gaming', 'bundles' );
 	$available   = qr_minimal_store_available_departments();
 	$departments = array();
 	foreach ( array_unique( array_merge( $order, array_keys( $available ) ) ) as $key ) {
@@ -289,12 +298,22 @@ function qr_minimal_store_department_links( $limit = 8 ) {
 	$index   = 0;
 	foreach ( $departments as $key => $department ) {
 		// Beyond the limit: only in the phone menu (and the footer, which passes a higher limit).
-		$extra = ++$index > $limit;
+		if ( 'bundles' !== $key ) {
+			++$index;
+		}
+		$extra = $index > $limit;
+		if ( ! empty( $department['pill'] ) ) {
+			$badge = ' <span class="qr-new-pill">' . esc_html( $department['pill'] ) . '</span>';
+		} elseif ( ! empty( $department['new'] ) ) {
+			$badge = ' <span class="qr-new-pill">' . esc_html__( 'New', 'qr-minimal-store' ) . '</span>';
+		} else {
+			$badge = '';
+		}
 		printf(
 			'<li%5$s><a href="%1$s"%4$s>%2$s%3$s</a></li>',
 			esc_url( $department['url'] ),
 			esc_html( $department['title'] ),
-			$department['new'] ? ' <span class="qr-new-pill">' . esc_html__( 'New', 'qr-minimal-store' ) . '</span>' : '',
+			$badge,
 			$current && $current['key'] === $key ? ' aria-current="true"' : '',
 			$extra ? ' class="qr-depts__extra"' : ''
 		);
