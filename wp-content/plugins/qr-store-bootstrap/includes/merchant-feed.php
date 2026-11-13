@@ -297,3 +297,36 @@ function qr_store_media_names_page() {
 	wp_nonce_field( 'qr_rename_media' );
 	echo '<p><button type="submit" name="qr_rename_media" value="1" class="button button-primary">' . esc_html__( 'Rename these files', 'qr-store-bootstrap' ) . '</button></p></form></div>';
 }
+
+/* ---------------------------------------------------------------------------
+ * 3. Stale claimed-URL hash after a domain change (sync silently stops)
+ * ------------------------------------------------------------------------- */
+
+/*
+ * Google for WooCommerce only syncs when md5( home URL ) equals the stored hash of the
+ * Merchant Center claimed URL (option gla_claimed_url_hash). That hash is cached forever
+ * and only rebuilt when it is empty, so after the move from shop.yehudasolutions.com to
+ * y-store.co.za it still held the old domain: is_ready_for_syncing() returned false and
+ * every product push and update job was skipped ("Google Merchant Center has not been set
+ * up correctly"). When the stored hash no longer matches the site URL we drop it and the
+ * cached result; Google for WooCommerce then re-reads the claimed homepage from Merchant
+ * Center and re-checks. Each stale hash is cleared once only, so a real mismatch (Merchant
+ * Center still claims another domain) does not cause an API lookup on every admin load.
+ */
+add_action( 'admin_init', 'qr_store_gla_reset_stale_claimed_url' );
+function qr_store_gla_reset_stale_claimed_url() {
+	$hash = (string) get_option( 'gla_claimed_url_hash', '' );
+	if ( '' === $hash ) {
+		return;
+	}
+	$site_url = (string) apply_filters( 'woocommerce_gla_site_url', get_home_url() );
+	if ( md5( untrailingslashit( $site_url ) ) === $hash ) {
+		return;
+	}
+	if ( get_option( 'qr_store_gla_cleared_url_hash' ) === $hash ) {
+		return;
+	}
+	delete_option( 'gla_claimed_url_hash' );
+	delete_transient( 'gla_url_matches' );
+	update_option( 'qr_store_gla_cleared_url_hash', $hash, false );
+}

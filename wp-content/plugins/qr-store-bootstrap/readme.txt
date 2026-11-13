@@ -1,10 +1,13 @@
 === QR Store Bootstrap ===
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPL-2.0-or-later
 
 Foundation bootstrap for the store: core pages, WooCommerce options, legal pages, and Google Merchant Center feed fixes.
 
 == Changelog ==
+
+= 1.2.1 =
+* Google for WooCommerce: clears the cached Merchant Center claimed-URL hash when it no longer matches the site URL (left over from the old shop.yehudasolutions.com domain). It made Google for WooCommerce skip every product sync since the domain change.
 
 = 1.2.0 =
 * Google for WooCommerce: backorder products now send availabilityDate (supplier ETA `_supplier_eta` + 3 days, or today + 14 days when there is no future ETA). Fixes "Availability date is required".
