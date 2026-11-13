@@ -348,7 +348,12 @@ function qr_minimal_store_shop_context() {
 		$total                  = 0;
 		$chips                  = array();
 		foreach ( $departments as $department ) {
-			$count   = qr_minimal_store_category_stock_count( $department['slugs'] );
+			$slugs = $department['slugs'];
+			// The Bundles link opens Bundle Deals, which also lists Gaming Bundles.
+			if ( 'bundles' === $department['key'] && function_exists( 'qr_minimal_store_bundle_deals_query_slugs' ) ) {
+				$slugs = qr_minimal_store_bundle_deals_query_slugs();
+			}
+			$count   = qr_minimal_store_category_stock_count( $slugs );
 			$total  += $count;
 			$chips[] = array( $department['title'], $count, $department['url'], false );
 		}
@@ -373,8 +378,9 @@ function qr_minimal_store_shop_context() {
 			$dept_url   = isset( $available[ $current['key'] ] ) ? $available[ $current['key'] ]['url'] : get_term_link( $term );
 			$dept_slugs = isset( $available[ $current['key'] ] ) ? $available[ $current['key'] ]['slugs'] : array( $term->slug );
 			if ( $current['whole'] ) {
-				$context['title']    = $department['title'];
-				$context['crumbs'][] = array( $department['title'], '' );
+				// Nav label is "Bundles"; the category page keeps the name Bundle Deals.
+				$context['title']    = ( 'bundles' === $current['key'] ) ? qr_minimal_store_category_label( $term ) : $department['title'];
+				$context['crumbs'][] = array( $context['title'], '' );
 			} else {
 				$context['title']    = qr_minimal_store_category_label( $term );
 				$context['crumbs'][] = array( $department['title'], $dept_url );
@@ -460,9 +466,20 @@ function qr_minimal_store_shop_facet_rows() {
 	);
 	foreach ( array( 'product_cat', 'product_tag', 'product_brand' ) as $taxonomy ) {
 		$value = (string) get_query_var( $taxonomy );
-		if ( '' !== $value ) {
-			$args[ $taxonomy ] = $value;
+		if ( '' === $value ) {
+			continue;
 		}
+		// Bundle Deals lists Gaming Bundles as well. Count filters across both, once each.
+		if ( 'product_cat' === $taxonomy && 'bundle-deals' === $value && function_exists( 'qr_minimal_store_bundle_deals_query_slugs' ) ) {
+			$args['tax_query'][] = array(
+				'taxonomy'         => 'product_cat',
+				'field'            => 'slug',
+				'terms'            => qr_minimal_store_bundle_deals_query_slugs(),
+				'include_children' => true,
+			);
+			continue;
+		}
+		$args[ $taxonomy ] = $value;
 	}
 	if ( is_search() ) {
 		$args['s'] = get_search_query( false );

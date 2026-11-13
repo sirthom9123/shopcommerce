@@ -319,7 +319,18 @@ function qr_minimal_store_3d_video_product() {
  * @return string YouTube ID or "".
  */
 function qr_minimal_store_3d_hero_video_id() {
-	return qr_minimal_store_youtube_id( get_theme_mod( 'qr_3d_hero_video', 'OGyNYgarPyQ' ) );
+	return qr_minimal_store_youtube_id( get_theme_mod( 'qr_3d_hero_video', 'PmvWmkokR_Y' ) );
+}
+
+/**
+ * The previous Anycubic hero (OGyNYgarPyQ) was removed from YouTube. If that ID is still saved
+ * in the Customizer, replace it once. Any other saved video is left as it is.
+ */
+add_action( 'after_setup_theme', 'qr_minimal_store_replace_retired_3d_video', 20 );
+function qr_minimal_store_replace_retired_3d_video() {
+	if ( 'OGyNYgarPyQ' === get_theme_mod( 'qr_3d_hero_video' ) ) {
+		set_theme_mod( 'qr_3d_hero_video', 'PmvWmkokR_Y' );
+	}
 }
 
 add_action( 'customize_register', 'qr_minimal_store_3d_customizer', 20 );
@@ -327,7 +338,7 @@ function qr_minimal_store_3d_customizer( $wp_customize ) {
 	$wp_customize->add_setting(
 		'qr_3d_hero_video',
 		array(
-			'default'           => 'OGyNYgarPyQ',
+			'default'           => 'PmvWmkokR_Y',
 			'sanitize_callback' => 'qr_minimal_store_youtube_id',
 		)
 	);
