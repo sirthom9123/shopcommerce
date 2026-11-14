@@ -14,8 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const QR_RETURNS_EMAIL     = 'returns@shop.yehudasolutions.com';
-const QR_ORDERS_EMAIL      = 'orders@shop.yehudasolutions.com';
+const QR_RETURNS_EMAIL     = 'returns@y-store.co.za';
+const QR_ORDERS_EMAIL      = 'orders@y-store.co.za';
 const QR_TRACK_MAX_FAILS   = 5;
 const QR_TRACK_WINDOW_SECS = 600;
 

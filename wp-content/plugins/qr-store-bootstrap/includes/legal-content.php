@@ -10,9 +10,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function qr_store_contact_emails() {
 	return array(
-		'store'   => 'store@yehudasolutions.com',
-		'orders'  => 'orders@shop.yehudasolutions.com',
-		'returns' => 'returns@shop.yehudasolutions.com',
+		'store'   => 'store@y-store.co.za',
+		'orders'  => 'orders@y-store.co.za',
+		'returns' => 'returns@y-store.co.za',
 		'officer' => 'tshiamom@yehudasolutions.com',
 	);
 }

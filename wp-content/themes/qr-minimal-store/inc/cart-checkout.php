@@ -347,7 +347,7 @@ function qr_minimal_store_checkout_summary_block( $content ) {
 		array(
 			__( '30-day returns on unused items', 'qr-minimal-store' ),
 			__( 'Genuine products with local warranty', 'qr-minimal-store' ),
-			__( 'Questions? orders@shop.yehudasolutions.com', 'qr-minimal-store' ),
+			__( 'Questions? orders@y-store.co.za', 'qr-minimal-store' ),
 		)
 	);
 }

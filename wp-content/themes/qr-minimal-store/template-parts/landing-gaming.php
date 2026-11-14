@@ -147,7 +147,7 @@ $faqs[] = array(
 		<section class="container qr-section">
 			<div class="qr-shop__empty">
 				<p class="qr-shop__empty-title"><?php esc_html_e( 'The gaming range is on its way.', 'qr-minimal-store' ); ?></p>
-				<p><a href="<?php echo esc_url( 'mailto:orders@shop.yehudasolutions.com?subject=' . rawurlencode( __( 'Gaming', 'qr-minimal-store' ) ) ); ?>"><?php esc_html_e( 'Email us what you are looking for', 'qr-minimal-store' ); ?></a></p>
+				<p><a href="<?php echo esc_url( 'mailto:orders@y-store.co.za?subject=' . rawurlencode( __( 'Gaming', 'qr-minimal-store' ) ) ); ?>"><?php esc_html_e( 'Email us what you are looking for', 'qr-minimal-store' ); ?></a></p>
 			</div>
 		</section>
 	<?php endif; ?>

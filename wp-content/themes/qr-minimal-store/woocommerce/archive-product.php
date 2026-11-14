@@ -247,7 +247,7 @@ $facet_json = array(
 									<p><?php esc_html_e( "Email us what you need and we'll help you choose.", 'qr-minimal-store' ); ?></p>
 								</div>
 								<?php /* translators: %s: listing title */ ?>
-								<a class="qr-btn qr-btn--outline" href="<?php echo esc_url( 'mailto:orders@shop.yehudasolutions.com?subject=' . rawurlencode( sprintf( __( 'Help choosing: %s', 'qr-minimal-store' ), $context['title'] ) ) ); ?>"><?php esc_html_e( 'Ask us', 'qr-minimal-store' ); ?></a>
+								<a class="qr-btn qr-btn--outline" href="<?php echo esc_url( 'mailto:orders@y-store.co.za?subject=' . rawurlencode( sprintf( __( 'Help choosing: %s', 'qr-minimal-store' ), $context['title'] ) ) ); ?>"><?php esc_html_e( 'Ask us', 'qr-minimal-store' ); ?></a>
 							</li>
 							<?php
 						}

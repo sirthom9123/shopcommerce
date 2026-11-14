@@ -61,9 +61,9 @@ if ( is_front_page() ) {
 		<div>
 			<h2 class="qr-footer__title"><?php esc_html_e( 'Contact', 'qr-minimal-store' ); ?></h2>
 			<ul class="qr-footer__links">
-				<li><?php esc_html_e( 'Orders:', 'qr-minimal-store' ); ?> <a href="mailto:orders@shop.yehudasolutions.com">orders@shop.yehudasolutions.com</a></li>
-				<li><?php esc_html_e( 'Returns:', 'qr-minimal-store' ); ?> <a href="mailto:returns@shop.yehudasolutions.com">returns@shop.yehudasolutions.com</a></li>
-				<li><?php esc_html_e( 'Other questions:', 'qr-minimal-store' ); ?> <a href="mailto:store@yehudasolutions.com">store@yehudasolutions.com</a></li>
+				<li><?php esc_html_e( 'Orders:', 'qr-minimal-store' ); ?> <a href="mailto:orders@y-store.co.za">orders@y-store.co.za</a></li>
+				<li><?php esc_html_e( 'Returns:', 'qr-minimal-store' ); ?> <a href="mailto:returns@y-store.co.za">returns@y-store.co.za</a></li>
+				<li><?php esc_html_e( 'Other questions:', 'qr-minimal-store' ); ?> <a href="mailto:store@y-store.co.za">store@y-store.co.za</a></li>
 				<?php foreach ( qr_minimal_store_social_profiles() as $network => $profile ) : ?>
 					<li>
 						<?php
