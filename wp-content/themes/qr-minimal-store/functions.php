@@ -29,6 +29,7 @@ require_once get_template_directory() . '/inc/shop.php';
 require_once get_template_directory() . '/inc/printing.php';
 require_once get_template_directory() . '/inc/bundles.php';
 require_once get_template_directory() . '/inc/gaming.php';
+require_once get_template_directory() . '/inc/deals.php';
 require_once get_template_directory() . '/inc/account.php';
 require_once get_template_directory() . '/inc/order-status.php';
 
