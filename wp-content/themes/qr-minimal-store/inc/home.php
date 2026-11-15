@@ -284,10 +284,18 @@ function qr_minimal_store_offer_bar() {
  * @param int $limit Max departments.
  */
 function qr_minimal_store_department_links( $limit = 8 ) {
-	// Bundles sits after Gaming. It does not use up a limit slot: the desktop header keeps its
-	// eight departments plus Bundles, and the footer still has room for Power & Mobile and TV & Audio.
-	$order       = array( 'smart-home', 'kitchen', 'wearables', 'pet-tech', 'grooming-wellness', 'computer-office', '3d-printing', 'gaming', 'bundles' );
+	// Bundles sits after Gaming, Deals after Bundles. Neither uses up a limit slot: the desktop header
+	// keeps its eight departments plus these two, and the footer still has room for Power & Mobile
+	// and TV & Audio.
+	$order       = array( 'smart-home', 'kitchen', 'wearables', 'pet-tech', 'grooming-wellness', 'computer-office', '3d-printing', 'gaming', 'bundles', 'deals' );
 	$available   = qr_minimal_store_available_departments();
+	// Deals (inc/deals.php) is a page, not a department: the link only shows while a deal can be bought.
+	if ( function_exists( 'qr_minimal_store_has_deals' ) && qr_minimal_store_has_deals() ) {
+		$available['deals'] = array(
+			'title' => __( 'Deals', 'qr-minimal-store' ),
+			'url'   => qr_minimal_store_deals_url(),
+		);
+	}
 	$departments = array();
 	foreach ( array_unique( array_merge( $order, array_keys( $available ) ) ) as $key ) {
 		if ( isset( $available[ $key ] ) ) {
@@ -298,9 +306,10 @@ function qr_minimal_store_department_links( $limit = 8 ) {
 	$index   = 0;
 	foreach ( $departments as $key => $department ) {
 		// Beyond the limit: only in the phone menu (and the footer, which passes a higher limit).
-		if ( 'bundles' !== $key ) {
+		if ( 'bundles' !== $key && 'deals' !== $key ) {
 			++$index;
 		}
+		$is_current = 'deals' === $key ? qr_minimal_store_is_deals_page() : ( $current && $current['key'] === $key );
 		$extra = $index > $limit;
 		if ( ! empty( $department['pill'] ) ) {
 			$badge = ' <span class="qr-new-pill">' . esc_html( $department['pill'] ) . '</span>';
@@ -314,7 +323,7 @@ function qr_minimal_store_department_links( $limit = 8 ) {
 			esc_url( $department['url'] ),
 			esc_html( $department['title'] ),
 			$badge,
-			$current && $current['key'] === $key ? ' aria-current="true"' : '',
+			$is_current ? ' aria-current="true"' : '',
 			$extra ? ' class="qr-depts__extra"' : ''
 		);
 	}

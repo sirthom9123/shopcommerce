@@ -598,5 +598,20 @@ class ThemeContractTests(unittest.TestCase):
         self.assertIn("get_parent_id() === $id", nudge)
         self.assertIn("$item['qty']", nudge)
 
+    def test_deals_page_only_lists_dated_sale_prices(self):
+        php = self.read("inc/deals.php")
+        data = php[php.index("function qr_minimal_store_deal_data("):php.index("function qr_minimal_store_deals()")]
+        # A deal needs a sale end date that is still ahead and a live sale price.
+        self.assertIn("get_date_on_sale_to()", data)
+        self.assertIn("$to->getTimestamp() <= $now", data)
+        self.assertIn("is_on_sale()", data)
+        self.assertIn("_sale_price_dates_to", php)
+        # The menu link only shows while a deal can be bought.
+        home = self.read("inc/home.php")
+        self.assertIn("qr_minimal_store_has_deals()", home)
+        # The page never names the supplier or its promo.
+        page = self.read("template-parts/landing-deals.php") + php
+        self.assertNotIn("syntech", page.lower())
+
 if __name__ == "__main__":
     unittest.main()
