@@ -53,6 +53,17 @@ class QR_Meta_Pixel {
 		return strlen( self::pixel_id() ) >= 10;
 	}
 
+	/**
+	 * Catalog id for a product or variation. The Facebook catalog feed (CTX Feed) uses "wc_post_id_<ID>".
+	 *
+	 * @param WC_Product|int $product Product, variation, or post id.
+	 * @return string
+	 */
+	public static function content_id( $product ) {
+		$id = $product instanceof WC_Product ? (int) $product->get_id() : (int) $product;
+		return (string) apply_filters( 'qr_meta_pixel_content_id', 'wc_post_id_' . $id, $product );
+	}
+
 	private function should_print() {
 		if ( is_admin() || wp_doing_ajax() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
 			return false;
@@ -227,14 +238,16 @@ fbq('track', <?php echo wp_json_encode( $event['name'] ); ?><?php echo ! empty( 
 
 		WC()->session->set( 'qr_meta_pixel_pending_atc', null );
 
+		$cid = self::content_id( (int) $pending['id'] );
+
 		$this->queued_events[] = array(
 			'name'   => 'AddToCart',
 			'params' => array(
-				'content_ids'  => array( $pending['id'] ),
+				'content_ids'  => array( $cid ),
 				'content_type' => 'product',
 				'contents'     => array(
 					array(
-						'id'       => $pending['id'],
+						'id'       => $cid,
 						'quantity' => (int) $pending['quantity'],
 					),
 				),
@@ -264,7 +277,7 @@ fbq('track', <?php echo wp_json_encode( $event['name'] ); ?><?php echo ! empty( 
 		$ids      = array();
 		foreach ( $order->get_items() as $item ) {
 			$product = $item->get_product();
-			$pid     = $product ? (string) $product->get_id() : (string) $item->get_product_id();
+			$pid     = $product ? self::content_id( $product ) : ( $item->get_product_id() ? self::content_id( (int) $item->get_product_id() ) : '' );
 			if ( '' === $pid ) {
 				continue;
 			}
@@ -367,7 +380,7 @@ fbq('track', <?php echo wp_json_encode( $event['name'] ); ?><?php echo ! empty( 
 
 		return array(
 			'content_name' => $product->get_name(),
-			'content_ids'  => array( (string) $product->get_id() ),
+			'content_ids'  => array( self::content_id( $product ) ),
 			'content_type' => 'product',
 			'value'        => $price,
 			'currency'     => get_woocommerce_currency(),
@@ -389,9 +402,9 @@ fbq('track', <?php echo wp_json_encode( $event['name'] ); ?><?php echo ! empty( 
 					continue;
 				}
 				$qty        = isset( $item['quantity'] ) ? (int) $item['quantity'] : 1;
-				$ids[]      = (string) $pid;
+				$ids[]      = self::content_id( $pid );
 				$contents[] = array(
-					'id'       => (string) $pid,
+					'id'       => self::content_id( $pid ),
 					'quantity' => $qty,
 				);
 			}

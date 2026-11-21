@@ -21,6 +21,7 @@
 			currency: (window.qrMetaPixel && qrMetaPixel.currency) || 'ZAR'
 		};
 		if (id) {
+			id = 'wc_post_id_' + id;
 			params.content_ids = [id];
 			params.contents = [{ id: id, quantity: qty }];
 		}
