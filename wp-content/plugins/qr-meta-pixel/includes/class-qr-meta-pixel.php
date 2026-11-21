@@ -53,6 +53,17 @@ class QR_Meta_Pixel {
 		return strlen( self::pixel_id() ) >= 10;
 	}
 
+	/**
+	 * Catalog id for a product or variation. The Facebook catalog feed (CTX Feed) uses "wc_post_id_<ID>".
+	 *
+	 * @param WC_Product|int $product Product, variation, or post id.
+	 * @return string
+	 */
+	public static function content_id( $product ) {
+		$id = $product instanceof WC_Product ? (int) $product->get_id() : (int) $product;
+		return (string) apply_filters( 'qr_meta_pixel_content_id', 'wc_post_id_' . $id, $product );
+	}
+
 	private function should_print() {
 		if ( is_admin() || wp_doing_ajax() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
 			return false;
@@ -97,7 +108,7 @@ s.parentNode.insertBefore(t,s)}(window, document,'script',
 fbq('init', <?php echo wp_json_encode( $init[0] ); ?><?php echo isset( $init[1] ) ? ', ' . wp_json_encode( $init[1] ) : ''; ?>);
 fbq('track', 'PageView');
 <?php foreach ( $events as $event ) : ?>
-fbq('track', <?php echo wp_json_encode( $event['name'] ); ?><?php echo ! empty( $event['params'] ) ? ', ' . wp_json_encode( $event['params'] ) : ''; ?>);
+fbq('track', <?php echo wp_json_encode( $event['name'] ); ?>, <?php echo wp_json_encode( ! empty( $event['params'] ) ? $event['params'] : new stdClass() ); ?><?php echo ! empty( $event['event_id'] ) ? ', ' . wp_json_encode( array( 'eventID' => $event['event_id'] ) ) : ''; ?>);
 <?php endforeach; ?>
 </script>
 <!-- End Meta Pixel Code -->
@@ -147,9 +158,11 @@ fbq('track', <?php echo wp_json_encode( $event['name'] ); ?><?php echo ! empty( 
 		}
 
 		if ( function_exists( 'is_checkout' ) && is_checkout() && ! is_order_received_page() && ! is_wc_endpoint_url( 'order-pay' ) ) {
+			$params                = $this->cart_params();
 			$this->queued_events[] = array(
-				'name'   => 'InitiateCheckout',
-				'params' => $this->cart_params(),
+				'name'     => 'InitiateCheckout',
+				'params'   => $params,
+				'event_id' => $this->send_server_event( 'InitiateCheckout', $params ),
 			);
 		}
 
@@ -227,19 +240,23 @@ fbq('track', <?php echo wp_json_encode( $event['name'] ); ?><?php echo ! empty( 
 
 		WC()->session->set( 'qr_meta_pixel_pending_atc', null );
 
-		$this->queued_events[] = array(
-			'name'   => 'AddToCart',
-			'params' => array(
-				'content_ids'  => array( $pending['id'] ),
-				'content_type' => 'product',
-				'contents'     => array(
-					array(
-						'id'       => $pending['id'],
-						'quantity' => (int) $pending['quantity'],
-					),
+		$cid    = self::content_id( (int) $pending['id'] );
+		$params = array(
+			'content_ids'  => array( $cid ),
+			'content_type' => 'product',
+			'contents'     => array(
+				array(
+					'id'       => $cid,
+					'quantity' => (int) $pending['quantity'],
 				),
-				'currency'     => get_woocommerce_currency(),
 			),
+			'currency'     => get_woocommerce_currency(),
+		);
+
+		$this->queued_events[] = array(
+			'name'     => 'AddToCart',
+			'params'   => $params,
+			'event_id' => $this->send_server_event( 'AddToCart', $params ),
 		);
 	}
 
@@ -264,7 +281,7 @@ fbq('track', <?php echo wp_json_encode( $event['name'] ); ?><?php echo ! empty( 
 		$ids      = array();
 		foreach ( $order->get_items() as $item ) {
 			$product = $item->get_product();
-			$pid     = $product ? (string) $product->get_id() : (string) $item->get_product_id();
+			$pid     = $product ? self::content_id( $product ) : ( $item->get_product_id() ? self::content_id( (int) $item->get_product_id() ) : '' );
 			if ( '' === $pid ) {
 				continue;
 			}
@@ -275,15 +292,20 @@ fbq('track', <?php echo wp_json_encode( $event['name'] ); ?><?php echo ! empty( 
 			);
 		}
 
+		$params = array(
+			'content_ids'  => $ids,
+			'content_type' => 'product',
+			'contents'     => $contents,
+			'num_items'    => count( $contents ),
+			'value'        => (float) $order->get_total(),
+			'currency'     => $order->get_currency(),
+			'order_id'     => (string) $order->get_order_number(),
+		);
+
 		$this->queued_events[] = array(
-			'name'   => 'Purchase',
-			'params' => array(
-				'content_ids'  => $ids,
-				'content_type' => 'product',
-				'contents'     => $contents,
-				'value'        => (float) $order->get_total(),
-				'currency'     => $order->get_currency(),
-			),
+			'name'     => 'Purchase',
+			'params'   => $params,
+			'event_id' => $this->send_server_event( 'Purchase', $params, $order ),
 		);
 
 		$this->purchase_order = $order;
@@ -349,6 +371,163 @@ fbq('track', <?php echo wp_json_encode( $event['name'] ); ?><?php echo ! empty( 
 		);
 	}
 
+	/**
+	 * Meta Conversions API (server-to-server) for the per-visitor, uncached events only:
+	 * AddToCart after a redirect, InitiateCheckout and Purchase. The browser pixel gets the
+	 * same eventID so Meta deduplicates the pair. Product and search pages are full-page
+	 * cached, so those events stay browser-only.
+	 *
+	 * Runs only with QR_META_ACCESS_TOKEN in wp-config.php and, when QR Analytics is active,
+	 * only after marketing consent. Fire-and-forget: never blocks the page.
+	 *
+	 * @param string               $name   Standard Meta event name.
+	 * @param array<string, mixed> $params custom_data.
+	 * @param WC_Order|null        $order  Order, for buyer match keys.
+	 * @return string event_id shared with the browser event.
+	 */
+	private function send_server_event( $name, $params, $order = null ) {
+		$event_id = wp_generate_uuid4();
+
+		if ( ! defined( 'QR_META_ACCESS_TOKEN' ) || ! QR_META_ACCESS_TOKEN ) {
+			return $event_id;
+		}
+		if ( $this->consent_gated() && ( ! function_exists( 'qr_analytics_marketing_granted' ) || ! qr_analytics_marketing_granted() ) ) {
+			return $event_id;
+		}
+
+		$body = array(
+			'data' => array(
+				array(
+					'event_name'       => $name,
+					'event_time'       => time(),
+					'event_id'         => $event_id,
+					'action_source'    => 'website',
+					'event_source_url' => $this->current_url(),
+					'user_data'        => $this->server_user_data( $order ),
+					'custom_data'      => $params,
+				),
+			),
+		);
+		$test_code = defined( 'QR_META_TEST_EVENT_CODE' ) ? (string) QR_META_TEST_EVENT_CODE : '';
+		if ( '' !== $test_code ) {
+			$body['test_event_code'] = $test_code;
+		}
+
+		$version = (string) apply_filters( 'qr_meta_pixel_graph_version', 'v21.0' );
+		$url     = 'https://graph.facebook.com/' . rawurlencode( $version ) . '/' . rawurlencode( self::pixel_id() ) . '/events';
+
+		wp_remote_post(
+			$url,
+			array(
+				'timeout'  => 3,
+				'blocking' => false,
+				'headers'  => array(
+					'Content-Type'  => 'application/json',
+					'Authorization' => 'Bearer ' . QR_META_ACCESS_TOKEN,
+				),
+				'body'     => wp_json_encode( $body ),
+			)
+		);
+
+		return $event_id;
+	}
+
+	/**
+	 * Hashed match keys (SHA-256 of normalised values, as Meta requires) plus the click and browser ids.
+	 *
+	 * @param WC_Order|null $order Order (guest checkout details).
+	 * @return array<string, mixed>
+	 */
+	private function server_user_data( $order = null ) {
+		if ( $order instanceof WC_Order ) {
+			$raw = array(
+				'em'      => $order->get_billing_email(),
+				'ph'      => $order->get_billing_phone(),
+				'fn'      => $order->get_billing_first_name(),
+				'ln'      => $order->get_billing_last_name(),
+				'ct'      => $order->get_billing_city(),
+				'zp'      => $order->get_billing_postcode(),
+				'country' => $order->get_billing_country(),
+			);
+			if ( $order->get_customer_id() ) {
+				$raw['external_id'] = (string) $order->get_customer_id();
+			}
+		} else {
+			$raw = $this->advanced_matching();
+			if ( is_user_logged_in() ) {
+				$raw['external_id'] = (string) get_current_user_id();
+			}
+		}
+
+		$data = array();
+		foreach ( $raw as $key => $value ) {
+			$value = strtolower( trim( (string) $value ) );
+			if ( 'ph' === $key ) {
+				$value = preg_replace( '/\D+/', '', $value );
+				if ( 10 === strlen( $value ) && 0 === strpos( $value, '0' ) ) {
+					$value = '27' . substr( $value, 1 );
+				}
+			} elseif ( in_array( $key, array( 'fn', 'ln', 'ct' ), true ) ) {
+				$value = preg_replace( '/[^\p{L}]/u', '', $value );
+			} elseif ( 'zp' === $key ) {
+				$value = preg_replace( '/\s+/', '', $value );
+			}
+			if ( '' === $value ) {
+				continue;
+			}
+			$data[ $key ] = array( hash( 'sha256', $value ) );
+		}
+
+		if ( ! empty( $_COOKIE['_fbp'] ) ) {
+			$data['fbp'] = sanitize_text_field( wp_unslash( $_COOKIE['_fbp'] ) );
+		}
+		if ( ! empty( $_COOKIE['_fbc'] ) ) {
+			$data['fbc'] = sanitize_text_field( wp_unslash( $_COOKIE['_fbc'] ) );
+		} elseif ( ! empty( $_GET['fbclid'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$data['fbc'] = 'fb.1.' . ( time() * 1000 ) . '.' . sanitize_text_field( wp_unslash( $_GET['fbclid'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		}
+
+		$ip = $this->client_ip();
+		if ( '' !== $ip ) {
+			$data['client_ip_address'] = $ip;
+		}
+		if ( ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			$data['client_user_agent'] = sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) );
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Visitor IP behind a proxy/CDN; sent to Meta only, never stored.
+	 *
+	 * @return string
+	 */
+	private function client_ip() {
+		foreach ( array( 'HTTP_CF_CONNECTING_IP', 'HTTP_X_REAL_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR' ) as $key ) {
+			if ( empty( $_SERVER[ $key ] ) ) {
+				continue;
+			}
+			$parts = explode( ',', sanitize_text_field( wp_unslash( $_SERVER[ $key ] ) ) );
+			$ip    = trim( $parts[0] );
+			if ( filter_var( $ip, FILTER_VALIDATE_IP ) ) {
+				return $ip;
+			}
+		}
+		return '';
+	}
+
+	/**
+	 * Page URL without the query string (order keys stay out of Meta).
+	 *
+	 * @return string
+	 */
+	private function current_url() {
+		$path = isset( $_SERVER['REQUEST_URI'] ) ? (string) wp_unslash( $_SERVER['REQUEST_URI'] ) : '/'; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$path = (string) strtok( $path, '?' );
+		return esc_url_raw( home_url( $path ) );
+	}
+
 	private function mark_purchase() {
 		if ( ! $this->purchase_order ) {
 			return;
@@ -367,7 +546,7 @@ fbq('track', <?php echo wp_json_encode( $event['name'] ); ?><?php echo ! empty( 
 
 		return array(
 			'content_name' => $product->get_name(),
-			'content_ids'  => array( (string) $product->get_id() ),
+			'content_ids'  => array( self::content_id( $product ) ),
 			'content_type' => 'product',
 			'value'        => $price,
 			'currency'     => get_woocommerce_currency(),
@@ -389,9 +568,9 @@ fbq('track', <?php echo wp_json_encode( $event['name'] ); ?><?php echo ! empty( 
 					continue;
 				}
 				$qty        = isset( $item['quantity'] ) ? (int) $item['quantity'] : 1;
-				$ids[]      = (string) $pid;
+				$ids[]      = self::content_id( $pid );
 				$contents[] = array(
-					'id'       => (string) $pid,
+					'id'       => self::content_id( $pid ),
 					'quantity' => $qty,
 				);
 			}
