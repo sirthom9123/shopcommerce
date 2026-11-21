@@ -30,7 +30,11 @@
 		fbq("init", cfg.pixelId);
 		fbq("track", "PageView");
 		(cfg.events || []).forEach(function (event) {
-			fbq("track", event.name, event.params || {});
+			if (event.event_id) {
+				fbq("track", event.name, event.params || {}, { eventID: event.event_id });
+			} else {
+				fbq("track", event.name, event.params || {});
+			}
 		});
 	}
 

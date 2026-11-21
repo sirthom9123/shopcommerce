@@ -1,10 +1,13 @@
 === QR Store Bootstrap ===
-Stable tag: 1.2.3
+Stable tag: 1.2.4
 License: GPL-2.0-or-later
 
 Foundation bootstrap for the store: core pages, WooCommerce options, legal pages, and Google Merchant Center feed fixes.
 
 == Changelog ==
+
+= 1.2.4 =
+* Privacy policy: Meta Conversions API and TikTok Events API (server-sent add-to-cart, checkout and purchase events with hashed contact details, marketing consent only). Legal pages rebuild (legal version 1.0.14).
 
 = 1.2.3 =
 * Privacy policy: the Google Ads tag now loads on every page in Google Consent Mode (denied, no cookies) until marketing consent; Google added to the sharing list. Legal pages rebuild (legal version 1.0.13).
