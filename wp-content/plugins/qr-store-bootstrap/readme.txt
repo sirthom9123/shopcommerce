@@ -1,10 +1,13 @@
 === QR Store Bootstrap ===
-Stable tag: 1.2.2
+Stable tag: 1.2.3
 License: GPL-2.0-or-later
 
 Foundation bootstrap for the store: core pages, WooCommerce options, legal pages, and Google Merchant Center feed fixes.
 
 == Changelog ==
+
+= 1.2.3 =
+* Privacy policy: the Google Ads tag now loads on every page in Google Consent Mode (denied, no cookies) until marketing consent; Google added to the sharing list. Legal pages rebuild (legal version 1.0.13).
 
 = 1.2.2 =
 * Store, orders and returns contact addresses now use y-store.co.za. Legal pages rebuild (legal version 1.0.12).

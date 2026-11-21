@@ -269,7 +269,7 @@ function qr_store_legal_html_privacy( $ctx ) {
 <tr><td>Product reviews and stock alerts you request</td><td>Consent and/or steps you ask us to take</td></tr>
 <tr><td>Keep the website secure and working (login, cart, checkout)</td><td>Legitimate interest in operating a secure store</td></tr>
 <tr><td>First-party analytics so we can see where shoppers drop off</td><td>Consent. Nothing is stored until you accept. You can decline or withdraw at any time</td></tr>
-<tr><td>Meta, TikTok, and Google advertising measurement</td><td>Consent (marketing cookies). These run only after you accept marketing</td></tr>
+<tr><td>Meta, TikTok, and Google advertising measurement</td><td>Consent (marketing cookies). Meta and TikTok run only after you accept marketing. Google’s tag loads on every page but sets no advertising or analytics cookies until you accept (see section 6)</td></tr>
 </tbody>
 </table>
 <p>We do not sell personal information.</p>
@@ -282,6 +282,7 @@ function qr_store_legal_html_privacy( $ctx ) {
 <li><strong>Hosting and security providers</strong> — to host the website and protect it.</li>
 <li><strong>Meta Platforms (Facebook / Instagram)</strong> — advertising measurement via the Meta Pixel, only if you accept marketing cookies. Meta processes this information under its own terms and may process it outside South Africa.</li>
 <li><strong>TikTok</strong> — advertising measurement via the TikTok Pixel and Events API, only if you accept marketing cookies. TikTok processes this information under its own terms and may process it outside South Africa.</li>
+<li><strong>Google</strong> — Google Ads measurement via Google for WooCommerce. Before you accept marketing, Google receives only cookieless signals (see section 6); after you accept, it can also use advertising cookies. Google processes this information under its own terms and may process it outside South Africa.</li>
 <li><strong>Professional advisers or authorities</strong> — where the law requires it, or to protect our legal rights.</li>
 </ul>
 <p>These parties act as operators (processors) or, in PayFast’s case for payment data, as a responsible party for the information they collect to complete the payment. We require operators to use the information only for the agreed purpose.</p>
@@ -293,7 +294,8 @@ function qr_store_legal_html_privacy( $ctx ) {
 <li>checkout cookies so we can complete your order.</li>
 </ul>
 <p>If you choose <strong>Accept analytics</strong>, we set a first-party cookie with a random id and measure visits, product views, searches, add-to-cart, checkout starts, and orders, including campaign tags (for example Instagram or a reel) on the link you opened. We keep this detail for up to 13 months and then delete it. We do not store your IP address for analytics, and we do not use it to identify you. We link an email address only when you have already typed it at checkout or in a cart reminder. You can decline, and you can change your mind from Cookie &amp; privacy settings in the footer.</p>
-<p>If you also allow <strong>marketing</strong> cookies, we load the <strong>Meta Pixel</strong> (Facebook / Instagram), the <strong>TikTok Pixel</strong>, and <strong>Google Ads / Google for WooCommerce</strong> measurement tags where connected. They measure visits, product views, add-to-cart, checkout starts, and purchases, and they help us show ads. The Google Customer Reviews floating widget also loads only after marketing consent. If you decline, those tags do not run. A Global Privacy Control or Do Not Track signal is treated as a decline until you choose otherwise.</p>
+<p>If you also allow <strong>marketing</strong> cookies, we load the <strong>Meta Pixel</strong> (Facebook / Instagram) and the <strong>TikTok Pixel</strong>, and Google Ads may set its advertising cookies. They measure visits, product views, add-to-cart, checkout starts, and purchases, and they help us show ads. The Google Customer Reviews floating widget also loads only after marketing consent. If you decline, the Meta and TikTok tags do not run.</p>
+<p>The <strong>Google Ads tag</strong> (Google for WooCommerce) loads on every page in Google Consent Mode. Until you accept marketing it is set to “denied”: it stores no cookies and sends Google only cookieless signals, such as that a page was viewed or an order was completed (with the order value, order number, items, and delivery postal code, but no name, email, phone number, or street address), together with the technical details any web request carries. Google uses these signals to measure our ads in aggregate. Accepting marketing switches the tag to “granted”; declining or withdrawing switches it back. A Global Privacy Control or Do Not Track signal is treated as a decline until you choose otherwise.</p>
 <h2>7. Marketing</h2>
 <p>We only send marketing newsletters after you confirm your email (double opt-in). Every newsletter includes an unsubscribe link. Transactional messages — order confirmation, shipping, password reset, return updates — are not marketing and are sent because they are part of the service.</p>
 <h2>8. How long we keep information</h2>
